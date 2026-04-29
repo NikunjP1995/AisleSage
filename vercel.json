@@ -1,8 +1,33 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
   "functions": {
     "api/chat.js": {
       "memory": 1024,
       "maxDuration": 30
+    },
+    "api/supabase-config.js": {
+      "memory": 128,
+      "maxDuration": 5
     }
   }
 }
