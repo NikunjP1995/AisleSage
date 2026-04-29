@@ -6,13 +6,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
   try {
     const body = req.body;
-    // Force correct model
-    body.model = 'claude-sonnet-4-5';
-    body.max_tokens = body.max_tokens || 4000;
-    
-    console.log('Calling Anthropic with model:', body.model);
-    console.log('API key prefix:', process.env.ANTHROPIC_API_KEY?.substring(0,20));
-    
+    const isStream = body.stream === true;
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -22,13 +16,23 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(body)
     });
-    
-    const data = await response.json();
-    console.log('Anthropic response status:', response.status);
-    console.log('Anthropic response:', JSON.stringify(data).substring(0,200));
-    res.status(200).json(data);
+    if (isStream) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(decoder.decode(value, { stream: true }));
+      }
+      res.end();
+    } else {
+      const data = await response.json();
+      res.status(200).json(data);
+    }
   } catch (e) {
-    console.error('Error:', e.message);
     res.status(500).json({ error: e.message });
   }
 }
