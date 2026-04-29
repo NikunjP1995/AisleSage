@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   try {
     const body = req.body;
     // Force correct model
-    body.model = 'claude-3-5-sonnet-20241022';
+    body.model = 'claude-sonnet-4-5';
     body.max_tokens = body.max_tokens || 4000;
     
     console.log('Calling Anthropic with model:', body.model);
