@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Aisle Sage — AI Wedding Planner</title>
+<meta name="description" content="Aisle Sage — AI Wedding Planner. Describe your wedding once. Get venues, photographers, budget, vendor emails, and timeline in 60 seconds. Powered by AI. Works for weddings worldwide.">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --f:#1C3A2E;--f2:#244838;--f3:#0F2318;
+  --g:#B8922A;--g2:#D4AC50;--g3:#E8C870;
+  --gl:rgba(184,146,42,.08);--gb:rgba(184,146,42,.2);
+  --c:#FDFAF4;--c2:#F8F3E8;--c3:#F2EAD8;--c4:#EAE0C8;
+  --sage:#6B8F71;--sl:rgba(107,143,113,.1);
+  --bl:#C07060;--bll:rgba(192,112,96,.1);
+  --tx:#1A2E1E;--tx2:#4A6650;--tx3:#8A9E8C;--tx4:#B8C8BA;
+  --bd:rgba(28,58,46,.09);--bd2:rgba(28,58,46,.16);
+  --fl:rgba(28,58,46,.05);--fb:rgba(28,58,46,.14);
+  --sh:0 2px 14px rgba(28,58,46,.07);
+  --sh2:0 6px 32px rgba(28,58,46,.11);
+  --sh3:0 16px 60px rgba(28,58,46,.18);
+  --r:12px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--c);color:var(--tx);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.016'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+img{max-width:100%}
+
+/* ═══════════ SHARED UTILS ═══════════ */
+.hidden{display:none!important}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .22s;letter-spacing:.2px;border:none;text-decoration:none}
+.btn-f{background:var(--f);color:var(--g3);box-shadow:0 4px 16px rgba(15,35,24,.22)}
+.btn-f:hover{background:var(--f3);transform:translateY(-1px);box-shadow:0 6px 22px rgba(15,35,24,.3)}
+.btn-g{background:var(--g);color:var(--f3);box-shadow:0 4px 14px rgba(184,146,42,.28)}
+.btn-g:hover{background:var(--g2);transform:translateY(-1px)}
+.btn-out{background:transparent;color:var(--tx2);border:1.5px solid var(--bd2)}
+.btn-out:hover{border-color:var(--f);color:var(--f)}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.6);border:1.5px solid rgba(255,255,255,.18)}
+.btn-ghost:hover{border-color:rgba(255,255,255,.4);color:white}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--f);color:var(--g3);padding:11px 18px;border-radius:10px;font-size:13px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .28s;font-weight:700;box-shadow:0 6px 20px rgba(15,35,24,.3);border:1px solid rgba(184,146,42,.25);max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════════ LANDING PAGE ═══════════ */
+#landing{position:relative;z-index:1}
+
+/* Nav */
+.lnav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:64px;
+  background:rgba(253,250,244,.94);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bd);
+  transition:box-shadow .3s;
+}
+.lnav.scrolled{box-shadow:0 4px 24px rgba(28,58,46,.08)}
+.lnav-logo{font-family:'Libre Baskerville',serif;font-size:22px;font-style:italic;color:var(--f);letter-spacing:2px;display:flex;align-items:center;gap:9px;text-decoration:none}
+.lnav-leaf{font-size:13px;color:var(--g);animation:sway 4s ease infinite}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.lnav-links{display:flex;align-items:center;gap:28px}
+.lnav-link{font-size:13.5px;color:var(--tx3);font-weight:600;text-decoration:none;transition:color .2s}
+.lnav-link:hover{color:var(--f)}
+.lnav-r{display:flex;align-items:center;gap:10px}
+
+/* Hero */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:120px 24px 80px;text-align:center;position:relative;overflow:hidden;
+}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(184,146,42,.06) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(107,143,113,.07) 0%,transparent 50%)}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border:1.5px solid var(--gb);border-radius:20px;
+  font-size:12px;color:var(--g);font-weight:700;letter-spacing:.5px;
+  background:var(--gl);margin-bottom:28px;
+  animation:fadeUp .6s ease both;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.hero-title{
+  font-family:'Libre Baskerville',serif;
+  font-size:clamp(38px,6vw,72px);
+  color:var(--f);line-height:1.15;
+  max-width:820px;margin-bottom:24px;
+  animation:fadeUp .6s .1s ease both;
+}
+.hero-title em{font-style:italic;color:var(--g)}
+.hero-sub{
+  font-size:clamp(16px,2.5vw,20px);color:var(--tx2);
+  max-width:560px;line-height:1.8;margin-bottom:40px;
+  animation:fadeUp .6s .2s ease both;
+}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:56px;animation:fadeUp .6s .3s ease both}
+.hero-social{font-size:12px;color:var(--tx3);animation:fadeUp .6s .4s ease both}
+.hero-social strong{color:var(--f)}
+
+/* Live demo preview */
+.demo-preview{
+  width:100%;max-width:760px;margin:0 auto;
+  background:var(--f);border-radius:16px;overflow:hidden;
+  box-shadow:0 24px 80px rgba(15,35,24,.25);
+  animation:fadeUp .8s .5s ease both;
+  border:1px solid rgba(184,146,42,.2);
+}
+.demo-bar{
+  display:flex;align-items:center;gap:8px;padding:12px 16px;
+  background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.06);
+}
+.demo-dot{width:10px;height:10px;border-radius:50%}
+.demo-url{
+  flex:1;background:rgba(255,255,255,.07);border-radius:6px;
+  padding:5px 12px;font-size:11px;color:rgba(255,255,255,.4);margin:0 8px;
+  font-family:monospace;
+}
+.demo-screen{padding:20px;min-height:220px;display:flex;flex-direction:column;gap:12px}
+.demo-msg{display:flex;gap:10px;align-items:flex-start;animation:fadeUp .4s ease both}
+.demo-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.demo-bbl{padding:10px 14px;border-radius:3px 14px 14px 14px;font-size:12px;line-height:1.7;max-width:80%}
+.demo-bbl.ai{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
+.demo-bbl.u{background:rgba(184,146,42,.2);color:var(--g3);border-radius:14px 3px 14px 14px}
+.demo-steps{display:flex;flex-direction:column;gap:5px;margin-left:38px}
+.demo-step{font-size:10.5px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:6px}
+.demo-step-dot{width:10px;height:10px;border-radius:50%;background:var(--sage);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px;color:white}
+
+/* Features */
+.features{padding:100px 24px;background:var(--c2)}
+.features-inner{max-width:1100px;margin:0 auto}
+.section-label{font-size:10px;color:var(--g);text-transform:uppercase;letter-spacing:2.5px;font-weight:700;margin-bottom:12px;text-align:center}
+.section-title{font-family:'Libre Baskerville',serif;font-size:clamp(28px,4vw,44px);color:var(--f);text-align:center;margin-bottom:16px;line-height:1.25}
+.section-sub{font-size:16px;color:var(--tx2);text-align:center;max-width:520px;margin:0 auto 56px;line-height:1.8}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat-card{
+  background:var(--c);border:1px solid var(--bd);border-radius:var(--r);
+  padding:28px 24px;transition:all .22s;box-shadow:var(--sh);
+}
+.feat-card:hover{border-color:var(--gb);box-shadow:var(--sh2);transform:translateY(-3px)}
+.feat-icon{font-size:28px;margin-bottom:14px}
+.feat-title{font-family:'Libre Baskerville',serif;font-size:17px;color:var(--f);margin-bottom:8px}
+.feat-desc{font-size:13px;color:var(--tx2);line-height:1.75}
+
+/* How it works */
+.how{padding:100px 24px}
+.how-inner{max-width:900px;margin:0 auto}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:56px}
+.how-step{text-align:center}
+.how-num{
+  width:48px;height:48px;border-radius:50%;
+  background:var(--f);color:var(--g3);
+  font-family:'Libre Baskerville',serif;font-size:20px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;box-shadow:0 4px 16px rgba(15,35,24,.2);
+  font-style:italic;
+}
+.how-title{font-family:'Libre Baskerville',serif;font-size:18px;color:var(--f);margin-bottom:8px}
+.how-desc{font-size:13px;color:var(--tx2);line-height:1.75}
+.how-arrow{display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:24px;padding-top:20px}
+
+/* Testimonials */
+.testimonials{padding:100px 24px;background:var(--f)}
+.testimonials-inner{max-width:1100px;margin:0 auto}
+.test-title{font-family:'Libre Baskerville',serif;font-size:clamp(28px,4vw,44px);color:var(--g3);text-align:center;margin-bottom:56px}
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.test-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--r);padding:24px}
+.test-stars{color:var(--g3);font-size:14px;margin-bottom:12px;letter-spacing:2px}
+.test-quote{font-family:'Libre Baskerville',serif;font-size:15px;font-style:italic;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:16px}
+.test-author{font-size:12px;color:rgba(255,255,255,.4);font-weight:600}
+
+/* Pricing */
+.pricing{padding:100px 24px;background:var(--c2)}
+.pricing-inner{max-width:900px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-top:56px}
+.price-card{
+  background:var(--c);border:1.5px solid var(--bd2);border-radius:16px;
+  padding:28px 24px;position:relative;transition:all .22s;
+}
+.price-card:hover{border-color:var(--gb);box-shadow:var(--sh2);transform:translateY(-3px)}
+.price-card.featured{background:var(--f);border-color:var(--g)}
+.price-card.featured *:not(.price-cta){color:rgba(255,255,255,.8)!important}
+.price-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--g);color:var(--f3);font-size:10px;font-weight:800;padding:4px 14px;border-radius:20px;white-space:nowrap}
+.price-name{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);margin-bottom:12px}
+.price-card.featured .price-name{color:rgba(255,255,255,.5)!important}
+.price-amount{font-family:'Libre Baskerville',serif;font-size:48px;color:var(--f);line-height:1;margin-bottom:4px}
+.price-card.featured .price-amount{color:var(--g3)!important}
+.price-per{font-size:13px;color:var(--tx3);margin-bottom:20px}
+.price-card.featured .price-per{color:rgba(255,255,255,.4)!important}
+.price-feats{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.price-feat{font-size:12.5px;display:flex;align-items:flex-start;gap:8px}
+.price-feat-i{color:var(--sage);flex-shrink:0;font-weight:700;margin-top:1px}
+.price-cta{width:100%}
+
+/* Global banner */
+.global-banner{padding:80px 24px;background:linear-gradient(135deg,var(--f3) 0%,var(--f) 60%,var(--f2) 100%);text-align:center}
+.global-grid{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-top:36px}
+.global-item{text-align:center}
+.global-n{font-family:'Libre Baskerville',serif;font-size:36px;color:var(--g3)}
+.global-l{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.2px;margin-top:4px}
+
+/* CTA section */
+.cta-section{padding:100px 24px;text-align:center}
+.cta-inner{max-width:600px;margin:0 auto}
+.cta-title{font-family:'Libre Baskerville',serif;font-size:clamp(28px,4vw,48px);color:var(--f);margin-bottom:16px;line-height:1.25}
+.cta-sub{font-size:16px;color:var(--tx2);margin-bottom:36px;line-height:1.8}
+
+/* Footer */
+.footer{background:var(--f);padding:48px 32px 32px}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;margin-bottom:40px;flex-wrap:wrap}
+.footer-logo{font-family:'Libre Baskerville',serif;font-size:20px;font-style:italic;color:var(--g3);letter-spacing:2px;margin-bottom:8px}
+.footer-desc{font-size:12.5px;color:rgba(255,255,255,.3);max-width:260px;line-height:1.75}
+.footer-col-title{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;font-weight:700}
+.footer-link{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:8px;text-decoration:none;transition:color .2s;cursor:pointer}
+.footer-link:hover{color:var(--g3)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.25)}
+
+/* ═══════════ AUTH SCREEN ═══════════ */
+#auth-screen{
+  position:fixed;inset:0;z-index:200;display:none;
+  background:rgba(15,35,24,.85);backdrop-filter:blur(16px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#auth-screen.show{display:flex}
+.auth-modal{
+  background:var(--c);border-radius:20px;width:100%;max-width:440px;
+  overflow:hidden;box-shadow:0 32px 100px rgba(15,35,24,.4);
+  max-height:92vh;overflow-y:auto;
+}
+.auth-modal::-webkit-scrollbar{width:3px}
+.auth-modal::-webkit-scrollbar-thumb{background:var(--c4);border-radius:2px}
+.auth-top{
+  background:linear-gradient(135deg,var(--f3) 0%,var(--f) 60%,var(--f2) 100%);
+  padding:28px 32px 24px;text-align:center;position:relative;overflow:hidden;
+  border-bottom:2px solid var(--g);
+}
+.auth-top::before{content:'❧';position:absolute;font-family:'Libre Baskerville',serif;font-size:180px;color:rgba(184,146,42,.04);top:50%;left:50%;transform:translate(-50%,-50%)}
+.auth-logo{font-family:'Libre Baskerville',serif;font-size:26px;font-style:italic;color:var(--g3);letter-spacing:2px;margin-bottom:5px;position:relative;z-index:1}
+.auth-modal-title{font-family:'Libre Baskerville',serif;font-size:18px;color:rgba(255,255,255,.88);position:relative;z-index:1;margin-bottom:3px}
+.auth-modal-sub{font-size:11.5px;color:rgba(255,255,255,.38);position:relative;z-index:1}
+.auth-body{padding:24px 28px}
+.g-btn{width:100%;padding:13px;border:1.5px solid var(--bd2);border-radius:10px;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--tx);display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin-bottom:18px;box-shadow:var(--sh)}
+.g-btn:hover{border-color:var(--fb);box-shadow:var(--sh2);transform:translateY(-1px)}
+.or-r{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.or-r::before,.or-r::after{content:'';flex:1;height:1px;background:var(--bd2)}
+.or-r span{font-size:10px;color:var(--tx4);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.fld input,.fld select{width:100%;padding:12px 14px;border:1.5px solid var(--bd2);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13.5px;color:var(--tx);background:var(--c2);outline:none;transition:all .2s;-webkit-appearance:none}
+.fld input:focus,.fld select:focus{border-color:rgba(28,58,46,.28);background:var(--c);box-shadow:0 0 0 3px rgba(28,58,46,.05)}
+.fld input::placeholder{color:var(--tx4)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.auth-submit{width:100%;padding:14px;background:var(--f);border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--g3);cursor:pointer;transition:all .22s;margin-top:6px;letter-spacing:.2px;box-shadow:0 4px 16px rgba(15,35,24,.22)}
+.auth-submit:hover{background:var(--f3);transform:translateY(-1px)}
+.auth-sw{text-align:center;margin-top:16px;font-size:13px;color:var(--tx3)}
+.auth-sw a{color:var(--f);font-weight:700;cursor:pointer}
+.auth-close{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;z-index:2;transition:color .2s;padding:4px}
+.auth-close:hover{color:var(--g3)}
+.auth-error{background:var(--bll);border:1px solid rgba(192,112,96,.2);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--bl);margin-bottom:13px;display:none}
+.auth-error.show{display:block}
+
+/* ═══════════ APP ═══════════ */
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.show{display:flex}
+
+/* App top nav */
+.appnav{
+  display:flex;align-items:center;height:56px;padding:0 20px;
+  background:var(--f);border-bottom:2px solid var(--g);
+  flex-shrink:0;position:sticky;top:0;z-index:50;
+  box-shadow:0 4px 20px rgba(15,35,24,.28);
+  overflow-x:auto;
+}
+.appnav::-webkit-scrollbar{display:none}
+.appnav::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g3),var(--g),var(--g3),transparent)}
+.an-logo{font-family:'Libre Baskerville',serif;font-size:19px;font-style:italic;color:var(--g3);letter-spacing:2px;display:flex;align-items:center;gap:8px;margin-right:24px;flex-shrink:0;text-decoration:none}
+.an-leaf{font-size:12px;color:var(--g);animation:sway 4s ease infinite}
+.an-tabs{display:flex;gap:1px;flex:1;overflow-x:auto;min-width:0}
+.an-tabs::-webkit-scrollbar{display:none}
+.an-tab{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:rgba(255,255,255,.4);transition:all .18s;display:flex;align-items:center;gap:6px;border:none;background:transparent;font-family:'Nunito',sans-serif;white-space:nowrap;flex-shrink:0}
+.an-tab:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.05)}
+.an-tab.active{color:var(--g3);background:rgba(184,146,42,.1)}
+.an-badge{background:var(--g);color:var(--f3);font-size:9px;font-weight:800;padding:2px 5px;border-radius:20px;min-width:15px;text-align:center}
+.an-badge.g{background:var(--sage)}
+.an-r{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;padding-left:12px}
+.an-days{font-size:11px;color:var(--g);font-weight:700;white-space:nowrap}
+.an-av{width:30px;height:30px;border-radius:50%;background:var(--g);color:var(--f3);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+
+/* App pages */
+.app-pages{flex:1;overflow:hidden;position:relative}
+.apg{display:none;height:100%;animation:fadeUp .25s ease}
+.apg.active{display:flex;flex-direction:column}
+
+/* ═══════════ PLANNER PAGE ═══════════ */
+.planner-layout{display:flex;flex:1;overflow:hidden;height:calc(100vh - 56px)}
+
+/* Feed */
+.feed{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;min-width:0}
+.feed::-webkit-scrollbar{width:3px}
+.feed::-webkit-scrollbar-thumb{background:var(--c4);border-radius:2px}
+
+/* Plan panel */
+.plan-panel{width:260px;border-left:1px solid var(--bd2);background:var(--c2);display:flex;flex-direction:column;flex-shrink:0}
+.plan-panel.hidden-mobile{display:flex}
+.pp-hdr{padding:12px 15px;border-bottom:1px solid var(--bd2);background:var(--f);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.pp-ht{font-family:'Libre Baskerville',serif;font-size:13px;font-style:italic;color:var(--g3)}
+.pp-hl{font-size:8px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:1.5px}
+.pp-body{flex:1;overflow-y:auto;padding:12px 13px}
+.pp-body::-webkit-scrollbar{width:3px}
+.pp-body::-webkit-scrollbar-thumb{background:var(--c4);border-radius:2px}
+.pp-empty{text-align:center;padding:24px 10px;color:var(--tx3);font-size:11px;line-height:2;font-style:italic}
+.ppsec{margin-bottom:14px}
+.ppsec-t{font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);margin-bottom:6px;font-weight:700}
+.ppi{background:var(--c);border:1px solid var(--bd);border-radius:8px;padding:9px 11px;margin-bottom:5px;cursor:pointer;transition:all .18s;box-shadow:var(--sh)}
+.ppi:hover{border-color:var(--gb);transform:translateY(-1px)}
+.ppi-n{font-size:11.5px;font-weight:600;color:var(--tx);margin-bottom:1px}
+.ppi-s{font-size:9.5px;color:var(--tx3);line-height:1.5}
+.ppi-p{font-size:10px;color:var(--g);margin-top:2px;font-weight:600}
+.pp-cta{width:100%;padding:8px;background:var(--f);border:none;border-radius:7px;font-family:'Nunito',sans-serif;font-size:10.5px;color:var(--g3);cursor:pointer;transition:all .2s;margin-top:5px;font-weight:700}
+.pp-cta:hover{background:var(--f3)}
+
+/* Welcome */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;animation:fadeUp .5s ease}
+.w-crest{width:48px;height:48px;margin:0 auto 16px;border:1.5px solid var(--gb);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--c2);font-size:20px;color:var(--g)}
+.w-logo{font-family:'Libre Baskerville',serif;font-size:44px;font-style:italic;color:var(--f);letter-spacing:2px;margin-bottom:4px}
+.w-sub{font-size:9px;color:var(--tx3);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;font-weight:700}
+.w-div{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);margin:0 auto 20px}
+.w-desc{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--tx2);font-weight:400;line-height:1.9;max-width:420px;margin-bottom:28px;font-style:italic}
+.w-ex{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:520px;width:100%}
+.we{background:var(--c2);border:1.5px solid var(--bd);border-radius:11px;padding:12px 14px;cursor:pointer;transition:all .2s;text-align:left;box-shadow:var(--sh)}
+.we:hover{border-color:var(--fb);box-shadow:var(--sh2);transform:translateY(-2px)}
+.we-icon{font-size:16px;margin-bottom:5px}
+.we-text{font-size:11px;color:var(--tx2);line-height:1.65}
+
+/* Messages */
+.msg{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--bd);animation:fadeUp .25s ease}
+.msg.u{flex-direction:row-reverse}
+.av{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.av.ai{background:var(--f);color:var(--g3);font-family:'Libre Baskerville',serif;font-style:italic;font-size:14px;border:1px solid rgba(184,146,42,.3)}
+.av.u{background:var(--c3);color:var(--f);font-size:9px;font-weight:800;border:1px solid var(--bd2)}
+.mc{flex:1;max-width:92%;min-width:0}
+.msg.u .mc{max-width:68%}
+.ubbl{background:var(--f);color:rgba(255,255,255,.9);border-radius:14px 3px 14px 14px;padding:10px 14px;font-size:13px;line-height:1.75;word-break:break-word}
+.ait{font-size:13px;line-height:1.85;color:var(--tx);margin-bottom:8px}
+.ait strong{color:var(--f2);font-weight:700}
+
+/* Thinking */
+.tw{display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
+.ts{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--tx3);animation:fadeUp .2s ease}
+.ts.active{color:var(--g)}.ts.done{color:var(--tx2)}
+.ti{width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;flex-shrink:0}
+.ti.spin{border:1.5px solid transparent;border-top-color:var(--g);animation:spin .8s linear infinite}
+.ti.done{background:var(--sage);color:white}
+.ti.pend{border:1.5px solid var(--bd2)}
+
+/* Result blocks */
+.rb{margin-top:9px}
+.rb-lbl{font-size:8px;text-transform:uppercase;letter-spacing:1.8px;color:var(--tx3);margin-bottom:6px;font-weight:700;display:flex;align-items:center;gap:8px}
+.rb-lbl::before{content:'';width:12px;height:1px;background:var(--g)}
+.rb-lbl::after{content:'';flex:1;height:1px;background:var(--bd2)}
+
+/* Venue result */
+.r-ven{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-start;transition:all .2s;cursor:pointer;box-shadow:var(--sh)}
+.r-ven:hover{border-color:var(--gb);box-shadow:var(--sh2);transform:translateY(-1px)}
+.rv-name{font-family:'Libre Baskerville',serif;font-size:14.5px;color:var(--tx);margin-bottom:2px}
+.rv-loc{font-size:10px;color:var(--tx3);margin-bottom:4px}
+.rv-desc{font-size:10.5px;color:var(--tx2);line-height:1.55;max-width:260px}
+.rv-r{text-align:right;flex-shrink:0;margin-left:10px}
+.rv-price{font-size:11.5px;color:var(--g);font-weight:700;margin-bottom:2px}
+.rv-stars{font-size:10px;color:var(--g);margin-bottom:6px;opacity:.75}
+.rv-btn{padding:5px 11px;border:1.5px solid var(--f);border-radius:20px;font-size:9px;color:var(--f);background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;transition:all .2s;white-space:nowrap}
+.rv-btn:hover{background:var(--f);color:var(--g3)}
+
+/* Grid results */
+.r-g2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.r-ph{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;transition:all .2s;cursor:pointer;box-shadow:var(--sh)}
+.r-ph:hover{border-color:var(--gb);box-shadow:var(--sh2);transform:translateY(-1px)}
+.rph-em{font-size:17px;margin-bottom:5px}
+.rph-name{font-family:'Libre Baskerville',serif;font-size:12.5px;color:var(--tx);margin-bottom:1px}
+.rph-style{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-weight:600}
+.rph-desc{font-size:10px;color:var(--tx2);line-height:1.5;margin-bottom:5px}
+.rph-ft{display:flex;justify-content:space-between}
+.rph-price{font-size:10px;color:var(--g);font-weight:600}
+.r-prod{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;cursor:pointer;transition:all .2s;text-decoration:none;display:block;box-shadow:var(--sh)}
+.r-prod:hover{border-color:var(--gb);box-shadow:var(--sh2);transform:translateY(-1px)}
+.rprod-em{font-size:17px;margin-bottom:5px}
+.rprod-name{font-family:'Libre Baskerville',serif;font-size:12.5px;color:var(--tx);margin-bottom:1px}
+.rprod-type{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;font-weight:600}
+.rprod-desc{font-size:10px;color:var(--tx2);line-height:1.5;margin-bottom:5px}
+.rprod-ft{display:flex;justify-content:space-between}
+.rprod-price{font-size:10px;color:var(--g);font-weight:600}
+.rprod-link{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px}
+
+/* Palette */
+.r-pal{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:7px;box-shadow:var(--sh)}
+.rpal-name{font-family:'Libre Baskerville',serif;font-size:13.5px;color:var(--tx);margin-bottom:8px;font-style:italic}
+.rpal-sw{display:flex;gap:5px;margin-bottom:8px}
+.rpal-s{flex:1;border-radius:5px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.rpal-c{height:30px}
+.rpal-l{font-size:7.5px;color:var(--tx3);text-align:center;padding:2px 0;background:var(--c2);border-top:1px solid var(--bd)}
+.rpal-desc{font-size:10px;color:var(--tx2);line-height:1.65}
+
+/* Budget result */
+.r-bud{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:7px;box-shadow:var(--sh)}
+.rbud-hdr{background:var(--f);border-radius:7px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rbud-tot-l{font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px}
+.rbud-tot-v{font-family:'Libre Baskerville',serif;font-size:18px;color:var(--g3)}
+.rbud-item{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.rbud-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rbud-name{font-size:11px;flex:1;color:var(--tx2)}
+.rbud-bar{height:3px;background:var(--c3);border-radius:2px;overflow:hidden;flex:1}
+.rbud-fill{height:100%;border-radius:2px}
+.rbud-val{font-size:9px;color:var(--tx3);min-width:70px;text-align:right}
+
+/* Email */
+.r-email{background:var(--c);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:7px;box-shadow:var(--sh)}
+.remail-hdr{padding:9px 12px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;background:var(--c2)}
+.remail-to{font-size:9.5px;color:var(--tx3)}
+.remail-subj{font-size:11px;font-weight:600;color:var(--tx);margin-top:1px}
+.remail-body{padding:11px 12px;font-size:10.5px;line-height:1.9;color:var(--tx2);white-space:pre-wrap;font-family:'Nunito',sans-serif}
+.remail-copy{padding:4px 10px;border:1.5px solid var(--f);border-radius:20px;font-size:9px;color:var(--f);background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;transition:all .2s;white-space:nowrap}
+.remail-copy:hover{background:var(--f);color:var(--g3)}
+
+/* Timeline */
+.r-tl{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:7px;box-shadow:var(--sh)}
+.rtl-i{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--bd)}
+.rtl-i:last-child{border-bottom:none}
+.rtl-time{font-family:'Libre Baskerville',serif;font-size:11.5px;color:var(--g);min-width:58px;padding-top:1px;font-style:italic}
+.rtl-dot{width:6px;height:6px;border-radius:50%;background:var(--g);margin-top:4px;flex-shrink:0;opacity:.55}
+.rtl-ev{font-size:11.5px;color:var(--tx);font-weight:500}
+.rtl-note{font-size:9.5px;color:var(--tx3);margin-top:2px}
+
+/* Guest block */
+.r-gs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px}
+.r-gs-s{background:var(--c2);border:1px solid var(--bd);border-radius:7px;padding:8px;text-align:center}
+.r-gs-n{font-family:'Libre Baskerville',serif;font-size:18px}
+.r-gs-l{font-size:8px;color:var(--tx3);margin-top:1px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.r-gtbl{width:100%;font-size:10.5px;border-collapse:collapse}
+.r-gtbl th{text-align:left;padding:5px 8px;font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1.5px solid var(--bd2);font-weight:700}
+.r-gtbl td{padding:6px 8px;border-bottom:1px solid var(--bd);color:var(--tx)}
+.r-gtbl tr:hover td{background:var(--c2)}
+.rbdg{padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700}
+.rbdg-y{background:var(--sl);color:var(--sage)}
+.rbdg-n{background:var(--bll);color:var(--bl)}
+.rbdg-p{background:var(--gl);color:var(--g)}
+
+/* Gate */
+.gate{background:linear-gradient(180deg,transparent 0%,var(--c) 50%);border-radius:0 0 12px 12px;padding:30px 18px 18px;margin-top:-34px;position:relative;text-align:center}
+.gate-title{font-family:'Libre Baskerville',serif;font-size:20px;color:var(--f);margin-bottom:7px}
+.gate-sub{font-size:12px;color:var(--tx2);line-height:1.75;margin-bottom:16px;max-width:360px;margin-left:auto;margin-right:auto}
+.gate-sub strong{color:var(--f)}
+.gate-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.gate-p{padding:11px 24px;background:var(--f);color:var(--g3);border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(15,35,24,.2)}
+.gate-p:hover{background:var(--f3);transform:translateY(-1px)}
+.gate-s{padding:11px 18px;background:transparent;color:var(--tx2);border:1.5px solid var(--bd2);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.gate-s:hover{border-color:var(--f);color:var(--f)}
+
+/* Locked */
+.locked{position:relative;pointer-events:none}
+.locked::after{content:'';position:absolute;inset:0;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border-radius:10px;background:rgba(253,250,244,.45)}
+
+/* Act row */
+.act-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.abtn{padding:7px 13px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;letter-spacing:.2px;font-weight:700}
+.abtn-p{background:var(--f);color:var(--g3);border:none;box-shadow:0 3px 10px rgba(15,35,24,.18)}
+.abtn-p:hover{background:var(--f3)}
+.abtn-g{background:transparent;color:var(--tx2);border:1.5px solid var(--bd2)}
+.abtn-g:hover{border-color:var(--f);color:var(--f)}
+
+/* Typing */
+.trow{display:flex;gap:10px;align-items:flex-start;padding:12px 0}
+.tdots{display:flex;gap:4px;align-items:center;padding:9px 14px;background:var(--c);border:1px solid var(--bd);border-radius:3px 14px 14px 14px;box-shadow:var(--sh)}
+.td{width:5px;height:5px;border-radius:50%;background:var(--g);opacity:.25;animation:tb 1.3s infinite}
+.td:nth-child(2){animation-delay:.22s}.td:nth-child(3){animation-delay:.44s}
+@keyframes tb{0%,60%,100%{opacity:.2;transform:scale(1)}30%{opacity:1;transform:scale(1.25)}}
+
+/* Input */
+.input-wrap{border-top:1px solid var(--bd2);background:var(--c);padding:11px 20px;flex-shrink:0}
+.hints-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px;overflow-x:auto}
+.hints-row::-webkit-scrollbar{display:none}
+.hint{padding:5px 12px;border:1.5px solid var(--bd2);border-radius:20px;font-size:11px;cursor:pointer;color:var(--tx3);transition:all .2s;font-family:'Nunito',sans-serif;font-weight:600;background:var(--c2);white-space:nowrap;flex-shrink:0}
+.hint:hover{border-color:var(--f);color:var(--f);background:var(--fl)}
+.irow{display:flex;gap:8px;align-items:flex-end}
+.ibox{flex:1;background:var(--c2);border:1.5px solid var(--bd2);border-radius:12px;padding:10px 15px;font-family:'Nunito',sans-serif;font-size:13px;color:var(--tx);outline:none;resize:none;max-height:100px;min-height:44px;transition:all .2s;line-height:1.5}
+.ibox:focus{border-color:var(--fb);background:var(--c);box-shadow:0 0 0 3px rgba(28,58,46,.05)}
+.ibox::placeholder{color:var(--tx3)}
+.sbtn{width:42px;height:42px;background:var(--f);border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--g3);transition:all .2s;flex-shrink:0;box-shadow:0 3px 12px rgba(15,35,24,.22)}
+.sbtn:hover{background:var(--f3);transform:translateY(-1px)}
+.sbtn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ═══════════ DASHBOARD PAGES ═══════════ */
+.pg{padding:20px 24px;overflow-y:auto;flex:1}
+.pg::-webkit-scrollbar{width:4px}
+.pg::-webkit-scrollbar-thumb{background:var(--c4);border-radius:2px}
+.sec-title{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--f);margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bd2)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sc{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);transition:all .2s}
+.sc:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+.sc.dk{background:var(--f);border-color:var(--f)}
+.sc-i{font-size:16px;margin-bottom:8px}
+.sc-l{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;font-weight:700}
+.sc.dk .sc-l{color:rgba(255,255,255,.35)}
+.sc-v{font-family:'Libre Baskerville',serif;font-size:26px;color:var(--tx);line-height:1}
+.sc.dk .sc-v{color:var(--g3)}
+.sc-s{font-size:10.5px;color:var(--tx3);margin-top:3px}
+.sc.dk .sc-s{color:rgba(255,255,255,.28)}
+.sc-bar{height:3px;border-radius:2px;margin-top:8px;overflow:hidden;background:var(--c4)}
+.sc.dk .sc-bar{background:rgba(255,255,255,.08)}
+.sc-fill{height:100%;border-radius:2px;background:var(--g)}
+.card{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.card-hdr{padding:12px 15px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;background:var(--c3)}
+.card-hdr-t{font-family:'Libre Baskerville',serif;font-size:13.5px;color:var(--f);display:flex;align-items:center;gap:7px}
+.card-link{font-size:11px;color:var(--g);cursor:pointer;font-weight:700;transition:color .2s}
+.card-link:hover{color:var(--f)}
+.task{display:flex;align-items:center;gap:9px;padding:9px 15px;border-bottom:1px solid var(--bd);cursor:pointer;transition:all .18s}
+.task:last-child{border-bottom:none}
+.task:hover{background:var(--c3)}
+.task.done{opacity:.45}
+.task-ck{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .2s}
+.task.done .task-ck{background:var(--sage);border-color:var(--sage);color:white}
+.task-txt{font-size:12px;flex:1;font-weight:500}
+.task.done .task-txt{text-decoration:line-through;color:var(--tx3)}
+.task-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;background:var(--gl);color:var(--g);white-space:nowrap}
+.task-tag.u{background:var(--bll);color:var(--bl)}
+.task-tag.d{background:var(--sl);color:var(--sage)}
+
+/* RSVP stats */
+.rsvp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+.rs{background:var(--c3);border:1px solid var(--bd);border-radius:9px;padding:11px;text-align:center}
+.rs-n{font-family:'Libre Baskerville',serif;font-size:22px}
+.rs-l{font-size:8.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;font-weight:700}
+.rsvp-bar{display:flex;gap:2px;height:5px;border-radius:3px;overflow:hidden;margin-bottom:10px}
+.rsvp-seg{border-radius:1px}
+
+/* Guest table */
+.gtbl{width:100%;border-collapse:collapse}
+.gtbl th{text-align:left;padding:8px 11px;font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--bd2);font-weight:700}
+.gtbl td{padding:9px 11px;font-size:12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.gtbl tr:hover td{background:var(--c3)}
+.gtbl tr:last-child td{border-bottom:none}
+.rp{padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:700;white-space:nowrap}
+.rp-y{background:var(--sl);color:var(--sage)}
+.rp-n{background:var(--bll);color:var(--bl)}
+.rp-p{background:var(--gl);color:var(--g)}
+.rp-s{background:rgba(255,255,255,.5);color:var(--tx3);border:1px solid var(--bd2)}
+.g-act{padding:4px 10px;border-radius:6px;font-size:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;transition:all .2s;border:1.5px solid var(--bd2);background:transparent;color:var(--tx2)}
+.g-act:hover{border-color:var(--f);color:var(--f)}
+.g-act.send{background:var(--f);color:var(--g3);border-color:var(--f)}
+
+/* Venue pipeline */
+.pipe{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.pipe-col{background:var(--c3);border-radius:10px;padding:11px;min-height:200px}
+.pipe-col-hdr{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--tx3);margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid var(--bd2);display:flex;justify-content:space-between}
+.pipe-cnt{background:var(--c4);color:var(--tx3);font-size:8.5px;padding:1px 6px;border-radius:20px}
+.vc-chip{background:var(--c);border:1px solid var(--bd);border-radius:8px;padding:10px 11px;margin-bottom:6px;cursor:pointer;transition:all .2s;box-shadow:var(--sh)}
+.vc-chip:hover{border-color:var(--gb);transform:translateY(-1px)}
+.vc-name{font-family:'Libre Baskerville',serif;font-size:12px;color:var(--tx);margin-bottom:2px}
+.vc-loc{font-size:9.5px;color:var(--tx3);margin-bottom:5px}
+.vc-price{font-size:10px;color:var(--g);font-weight:700;margin-bottom:5px}
+.vc-tag{font-size:8.5px;padding:2px 7px;border-radius:20px;font-weight:700;display:inline-block}
+.t-sl{background:var(--gl);color:var(--g)}.t-bk{background:var(--sl);color:var(--sage)}
+.pipe-add{width:100%;padding:7px;border:1.5px dashed var(--bd2);border-radius:7px;background:transparent;font-family:'Nunito',sans-serif;font-size:10.5px;color:var(--tx3);cursor:pointer;transition:all .2s;margin-top:4px}
+.pipe-add:hover{border-color:var(--f);color:var(--f)}
+
+/* Vendor */
+.vtabs{display:flex;border-bottom:1.5px solid var(--bd2);margin-bottom:16px;overflow-x:auto}
+.vtabs::-webkit-scrollbar{display:none}
+.vtab{padding:9px 16px;font-size:11.5px;cursor:pointer;color:var(--tx3);border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all .18s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Nunito',sans-serif;font-weight:700;white-space:nowrap}
+.vtab.on{color:var(--f);border-bottom-color:var(--g)}
+.vc{background:var(--c2);border:1px solid var(--bd);border-radius:11px;padding:14px;transition:all .2s;box-shadow:var(--sh)}
+.vc:hover{border-color:var(--gb);box-shadow:var(--sh2);transform:translateY(-2px)}
+.vc-i{font-size:22px;margin-bottom:8px}
+.vc-n{font-family:'Libre Baskerville',serif;font-size:13.5px;color:var(--tx);margin-bottom:2px}
+.vc-t{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-weight:600}
+.vc-d{font-size:11px;color:var(--tx2);line-height:1.6;margin-bottom:10px}
+.vc-ft{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.vc-pr{font-size:11px;color:var(--g);font-weight:700}
+.vc-st{font-size:9.5px;padding:3px 8px;border-radius:20px;font-weight:700}
+.st-n{background:var(--gl);color:var(--g)}.st-c{background:var(--bll);color:var(--bl)}.st-b{background:var(--sl);color:var(--sage)}
+.vc-btn{width:100%;padding:7px;border:1.5px solid var(--bd2);border-radius:7px;background:transparent;font-family:'Nunito',sans-serif;font-size:11px;cursor:pointer;color:var(--tx2);font-weight:700;transition:all .2s}
+.vc-btn:hover{background:var(--f);color:var(--g3);border-color:var(--f)}
+
+/* Budget */
+.b-hero{background:var(--f);border-radius:12px;padding:20px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 6px 24px rgba(15,35,24,.2)}
+.bh-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px}
+.bh-tot{font-family:'Libre Baskerville',serif;font-size:38px;color:var(--g3);line-height:1}
+.bh-sub{font-size:10.5px;color:rgba(255,255,255,.3);margin-top:4px}
+.bh-pct{font-family:'Libre Baskerville',serif;font-size:30px;color:var(--g3);text-align:right}
+.bh-pl{font-size:9px;color:rgba(255,255,255,.28);margin-top:2px}
+.bi{background:var(--c2);border:1px solid var(--bd);border-radius:10px;padding:13px 15px;box-shadow:var(--sh);transition:all .2s}
+.bi:hover{border-color:var(--gb);box-shadow:var(--sh2)}
+.bi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.bi-name{font-size:12.5px;font-weight:700}
+.bi-r{text-align:right}
+.bi-spent{font-size:12.5px;font-weight:700}
+.bi-bud{font-size:9.5px;color:var(--tx3)}
+.bi-bar{height:3px;background:var(--c4);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.bi-fill{height:100%;border-radius:2px}
+.bi-st{font-size:9.5px;color:var(--tx3)}
+
+/* Chip row */
+.chip-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+.chip{padding:6px 14px;border:1.5px solid var(--bd2);border-radius:20px;font-size:11.5px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:600;transition:all .18s;color:var(--tx2);background:var(--c2)}
+.chip:hover{border-color:var(--f);color:var(--f)}
+.chip.on{background:var(--f);color:var(--g3);border-color:var(--f)}
+.add-form{background:var(--c3);border:1px solid var(--bd);border-radius:9px;padding:12px 14px;margin-bottom:14px;display:none}
+.add-form.show{display:block;animation:fadeUp .2s ease}
+.af-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:end}
+.af-in{width:100%;padding:8px 11px;border:1.5px solid var(--bd2);border-radius:7px;font-family:'Nunito',sans-serif;font-size:12.5px;color:var(--tx);background:var(--c);outline:none;transition:border .2s}
+.af-in:focus{border-color:rgba(28,58,46,.28)}
+.af-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;font-weight:700}
+.af-in-lbl{display:block;margin-bottom:3px}
+
+/* Timeline */
+.tl-gen{background:var(--c2);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:var(--sh)}
+.tl-inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:13px}
+.tl-in{width:100%;padding:9px 11px;border:1.5px solid var(--bd2);border-radius:8px;font-family:'Nunito',sans-serif;font-size:12.5px;color:var(--tx);background:var(--c);outline:none;-webkit-appearance:none}
+.tl-in:focus{border-color:rgba(28,58,46,.28)}
+.tl-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;font-weight:700}
+.tl-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd)}
+.tl-item:last-child{border-bottom:none}
+.tl-time{font-family:'Libre Baskerville',serif;font-size:11.5px;color:var(--g);min-width:58px;padding-top:1px;font-style:italic}
+.tl-dot{width:6px;height:6px;border-radius:50%;background:var(--g);margin-top:4px;flex-shrink:0;opacity:.55}
+.tl-ev{font-size:12px;color:var(--tx);font-weight:500}
+.tl-note{font-size:9.5px;color:var(--tx3);margin-top:2px}
+
+/* Honeymoon */
+.hm-card{background:var(--c2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:var(--sh)}
+.hm-card:hover{transform:translateY(-3px);box-shadow:var(--sh2);border-color:var(--gb)}
+.hm-img{height:100px;display:flex;align-items:center;justify-content:center;font-size:38px}
+.hm-body{padding:12px 14px}
+.hm-name{font-family:'Libre Baskerville',serif;font-size:14.5px;margin-bottom:2px}
+.hm-loc{font-size:9.5px;color:var(--tx3);margin-bottom:5px}
+.hm-why{font-size:10.5px;color:var(--tx2);line-height:1.55;margin-bottom:8px}
+.hm-ft{display:flex;justify-content:space-between;align-items:center}
+.hm-price{font-size:11.5px;color:var(--g);font-weight:700}
+
+/* Paywall */
+.pw-ov{position:fixed;inset:0;background:rgba(15,35,24,.78);z-index:900;display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);padding:16px}
+.pw-ov.show{display:flex;animation:fadeUp .3s ease}
+.pw-box{background:var(--c);border:1px solid var(--bd2);border-radius:18px;width:100%;max-width:510px;overflow:hidden;position:relative;box-shadow:0 28px 90px rgba(15,35,24,.3);max-height:92vh;overflow-y:auto}
+.pw-box::-webkit-scrollbar{width:3px}
+.pw-box::-webkit-scrollbar-thumb{background:var(--c4);border-radius:2px}
+.pw-x{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;z-index:2;transition:color .2s;padding:4px}
+.pw-x:hover{color:var(--g3)}
+.pw-top{background:linear-gradient(135deg,var(--f3) 0%,var(--f) 60%,var(--f2) 100%);padding:26px 30px 22px;border-bottom:2px solid var(--g);text-align:center;position:relative;overflow:hidden}
+.pw-top::before{content:'❧ ✦ ❧';position:absolute;font-size:11px;color:rgba(184,146,42,.2);bottom:8px;left:50%;transform:translateX(-50%);letter-spacing:8px;font-family:'Libre Baskerville',serif}
+.pw-logo{font-family:'Libre Baskerville',serif;font-size:22px;font-style:italic;color:var(--g3);letter-spacing:2px;margin-bottom:4px;position:relative;z-index:1}
+.pw-head{font-family:'Libre Baskerville',serif;font-size:17px;color:rgba(255,255,255,.88);position:relative;z-index:1;margin-bottom:2px}
+.pw-sub{font-size:11px;color:rgba(255,255,255,.38);position:relative;z-index:1}
+.pw-body{padding:20px 26px}
+.pw-toggle{display:flex;background:var(--c3);border:1.5px solid var(--bd2);border-radius:10px;padding:3px;margin-bottom:14px}
+.pw-tab{flex:1;padding:8px;border-radius:8px;font-size:11.5px;cursor:pointer;transition:all .2s;text-align:center;color:var(--tx3);font-family:'Nunito',sans-serif;border:none;background:transparent;font-weight:600}
+.pw-tab.sel{background:var(--f);color:var(--g3);font-weight:700;box-shadow:0 3px 10px rgba(15,35,24,.2)}
+.pw-price-area{text-align:center;margin-bottom:14px;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pw-price{font-family:'Libre Baskerville',serif;font-size:44px;color:var(--f);line-height:1}
+.pw-price sup{font-size:18px;vertical-align:top;margin-top:9px;color:var(--tx2);font-family:'Nunito',sans-serif;font-weight:300}
+.pw-price sub{font-size:13px;color:var(--tx3);font-family:'Nunito',sans-serif;font-weight:300}
+.pw-pnote{font-size:10px;color:var(--tx3);margin-top:4px}
+.pw-save{display:inline-block;padding:2px 9px;border-radius:20px;background:var(--sl);color:var(--sage);font-size:9.5px;margin-top:4px;font-weight:700}
+.pw-feats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px}
+.pw-feat{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--tx2);padding:6px 9px;background:var(--c2);border:1px solid var(--bd);border-radius:7px;font-weight:500}
+.pw-feat-i{color:var(--sage);flex-shrink:0;font-size:12px;margin-top:1px}
+.pw-cta{width:100%;padding:13px;background:var(--f);border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:var(--g3);letter-spacing:.2px;transition:all .22s;margin-bottom:7px;box-shadow:0 4px 16px rgba(15,35,24,.22)}
+.pw-cta:hover{background:var(--f3);transform:translateY(-1px)}
+.pw-note{text-align:center;font-size:9.5px;color:var(--tx3);margin-bottom:13px}
+.pw-div{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.pw-div::before,.pw-div::after{content:'';flex:1;height:1px;background:var(--bd2)}
+.pw-div span{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.pw-acts{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pw-act{background:var(--c2);border:1.5px solid var(--bd);border-radius:8px;padding:9px 11px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh)}
+.pw-act:hover{border-color:var(--fb);box-shadow:var(--sh2)}
+.pw-act-l{font-size:10.5px;color:var(--tx2);font-weight:500}
+.pw-act-price{font-size:11px;color:var(--g);font-weight:700;margin-left:6px;white-space:nowrap}
+
+/* Feedback widget */
+.feedback-btn{position:fixed;bottom:24px;left:24px;z-index:80;background:var(--f);color:var(--g3);border:none;border-radius:24px;padding:10px 18px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(15,35,24,.22);transition:all .2s;display:none}
+.feedback-btn:hover{background:var(--f3);transform:translateY(-1px)}
+.feedback-btn.show{display:flex;align-items:center;gap:7px}
+.feedback-modal{position:fixed;bottom:80px;left:24px;z-index:81;background:var(--c);border:1px solid var(--bd2);border-radius:16px;padding:20px;width:300px;box-shadow:var(--sh3);display:none;animation:fadeUp .2s ease}
+.feedback-modal.show{display:block}
+.fb-title{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--f);margin-bottom:4px}
+.fb-sub{font-size:11.5px;color:var(--tx3);margin-bottom:14px}
+.fb-stars{display:flex;gap:6px;margin-bottom:12px}
+.fb-star{font-size:24px;cursor:pointer;transition:transform .15s;color:var(--c4)}
+.fb-star.active,.fb-star:hover{transform:scale(1.15);color:var(--g)}
+.fb-ta{width:100%;padding:10px 12px;border:1.5px solid var(--bd2);border-radius:8px;font-family:'Nunito',sans-serif;font-size:12.5px;color:var(--tx);background:var(--c2);outline:none;resize:vertical;min-height:72px;margin-bottom:11px}
+.fb-ta:focus{border-color:rgba(28,58,46,.28)}
+.fb-submit{width:100%;padding:10px;background:var(--f);border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--g3);cursor:pointer;transition:all .2s}
+.fb-submit:hover{background:var(--f3)}
+
+/* Share modal */
+.share-modal{position:fixed;inset:0;background:rgba(15,35,24,.75);z-index:900;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px);padding:20px}
+.share-modal.show{display:flex}
+.share-box{background:var(--c);border-radius:16px;padding:28px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(15,35,24,.3)}
+.share-title{font-family:'Libre Baskerville',serif;font-size:20px;color:var(--f);margin-bottom:6px}
+.share-sub{font-size:12.5px;color:var(--tx3);margin-bottom:20px;line-height:1.7}
+.share-url{display:flex;gap:8px;margin-bottom:16px}
+.share-url input{flex:1;padding:10px 13px;border:1.5px solid var(--bd2);border-radius:8px;font-family:monospace;font-size:12px;color:var(--tx);background:var(--c2);outline:none}
+.share-url button{padding:10px 16px;background:var(--f);color:var(--g3);border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+.share-url button:hover{background:var(--f3)}
+.share-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.share-opt{padding:9px 16px;border:1.5px solid var(--bd2);border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:var(--tx2);background:var(--c2);transition:all .2s;display:flex;align-items:center;gap:6px}
+.share-opt:hover{border-color:var(--f);color:var(--f)}
+
+/* Error state */
+.error-state{text-align:center;padding:32px 20px}
+.error-icon{font-size:36px;margin-bottom:12px}
+.error-title{font-family:'Libre Baskerville',serif;font-size:18px;color:var(--f);margin-bottom:7px}
+.error-sub{font-size:12.5px;color:var(--tx2);margin-bottom:16px;line-height:1.7}
+
+/* Loading skeleton */
+.sk{background:linear-gradient(90deg,var(--bd) 25%,var(--c3) 50%,var(--bd) 75%);background-size:200% 100%;animation:skl 1.4s infinite;border-radius:6px}
+@keyframes skl{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ═══════════ MOBILE RESPONSIVE ═══════════ */
+@media(max-width:768px){
+  .lnav-links{display:none}
+  .hero{padding:100px 20px 60px}
+  .feat-grid,.how-steps,.test-grid,.pricing-grid{grid-template-columns:1fr}
+  .how-arrow{display:none}
+  .global-grid{gap:28px}
+  .cta-section,.features,.how,.testimonials,.pricing{padding:60px 20px}
+  .footer-top{flex-direction:column;gap:28px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .plan-panel{display:none}
+  .g4{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .af-row{grid-template-columns:1fr 1fr;gap:8px}
+  .tl-inputs{grid-template-columns:1fr}
+  .pw-feats{grid-template-columns:1fr}
+  .pipe{grid-template-columns:1fr}
+  .rsvp-stats{grid-template-columns:repeat(2,1fr)}
+  .r-g2{grid-template-columns:1fr}
+  .feedback-btn{bottom:80px}
+  .feedback-modal{width:calc(100vw - 32px);left:16px;bottom:144px}
+  .share-box{margin:16px}
+  .auth-modal{margin:0}
+  .w-ex{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .an-tab span:not(.an-badge){display:none}
+  .g4{grid-template-columns:1fr 1fr}
+  .hero-ctas{flex-direction:column;align-items:center}
+  .gate-btns{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LANDING PAGE ═══════════ -->
+<div id="landing">
+  <!-- Nav -->
+  <nav class="lnav" id="lnav">
+    <a class="lnav-logo" href="#"><span class="lnav-leaf">❧</span>Aisle Sage</a>
+    <div class="lnav-links">
+      <a class="lnav-link" href="#features">Features</a>
+      <a class="lnav-link" href="#how">How it works</a>
+      <a class="lnav-link" href="#pricing">Pricing</a>
+      <a class="lnav-link" href="#" onclick="showFeedback()">Beta feedback</a>
+    </div>
+    <div class="lnav-r">
+      <button class="btn btn-out" style="padding:9px 18px;font-size:13px" onclick="openAuth('login')">Sign in</button>
+      <button class="btn btn-f" style="padding:9px 18px;font-size:13px" onclick="openAuth('signup')">Start free ↗</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>Now live · Global · Free to start</div>
+    <h1 class="hero-title">Plan your wedding in<br><em>60 seconds</em> — anywhere in the world</h1>
+    <p class="hero-sub">Describe your wedding once. Our AI autonomously finds venues, photographers, builds your budget, drafts vendor emails, and recommends attire. No menus. No searching. Just your complete plan.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-f" style="padding:15px 32px;font-size:15px" onclick="openAuth('signup')">✦ Build My Wedding Plan — Free</button>
+      <button class="btn btn-out" style="padding:15px 24px;font-size:15px" onclick="scrollDemo()">Watch it work →</button>
+    </div>
+    <div class="hero-social">Join <strong>12,000+</strong> couples planning their weddings with Aisle · <strong>4.9★</strong> average rating</div>
+
+    <!-- Live demo preview -->
+    <div class="demo-preview" id="demo" style="margin-top:48px">
+      <div class="demo-bar">
+        <div class="demo-dot" style="background:#FF5F57"></div>
+        <div class="demo-dot" style="background:#FEBC2E"></div>
+        <div class="demo-dot" style="background:#28C840"></div>
+        <div class="demo-url">aisle.wedding/planner</div>
+      </div>
+      <div class="demo-screen">
+        <div class="demo-msg" style="animation-delay:.1s">
+          <div class="demo-av" style="background:rgba(184,146,42,.15);color:#E8C870;font-family:'Libre Baskerville',serif;font-style:italic;font-size:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center">A</div>
+          <div class="demo-bbl ai">Welcome! Describe your wedding and I'll build your complete plan — venues, photographers, budget, vendor emails, and timeline.</div>
+        </div>
+        <div class="demo-msg" style="flex-direction:row-reverse;animation-delay:.3s">
+          <div class="demo-av" style="background:rgba(184,146,42,.2);color:#E8C870;font-size:9px;font-weight:700;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center">You</div>
+          <div class="demo-bbl u">Romantic garden wedding Toronto, 120 guests, October 2025, $50,000 budget.</div>
+        </div>
+        <div class="demo-steps" style="animation-delay:.5s">
+          <div class="demo-step"><div class="demo-step-dot">✓</div>Researching real venues in Toronto, Ontario</div>
+          <div class="demo-step"><div class="demo-step-dot">✓</div>Matching photographers for romantic garden style</div>
+          <div class="demo-step"><div class="demo-step-dot">✓</div>Allocating $50,000 across 10 budget categories</div>
+          <div class="demo-step"><div class="demo-step-dot">✓</div>Drafting venue inquiry emails · Building guest list</div>
+        </div>
+        <div class="demo-msg" style="animation-delay:.7s">
+          <div class="demo-av" style="background:rgba(184,146,42,.15);color:#E8C870;font-family:'Libre Baskerville',serif;font-style:italic;font-size:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center">A</div>
+          <div class="demo-bbl ai">✦ Your complete plan is ready — <strong style="color:#E8C870">3 venues shortlisted</strong>, <strong style="color:#E8C870">$50k budget allocated</strong>, <strong style="color:#E8C870">2 photographers matched</strong>, and <strong style="color:#E8C870">3 inquiry emails drafted</strong>. Everything synced to your dashboard.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="features-inner">
+      <div class="section-label">Everything you need</div>
+      <h2 class="section-title">Your AI does the work.<br>You make the decisions.</h2>
+      <p class="section-sub">Aisle autonomously researches, shortlists, drafts, and organizes — so you can focus on what matters.</p>
+      <div class="feat-grid">
+        <div class="feat-card"><div class="feat-icon">⌂</div><div class="feat-title">Global Venue Search</div><div class="feat-desc">Real venues in any city worldwide — Toronto, Tuscany, Bali, Dubai, Sydney, Dublin. The AI finds and shortlists based on your style, budget, and guest count.</div></div>
+        <div class="feat-card"><div class="feat-icon">📸</div><div class="feat-title">Photographer Matching</div><div class="feat-desc">Curated photographers matched to your region, style, and budget. From romantic editorial in Ontario to fine art in Tuscany and destination specialists in Bali.</div></div>
+        <div class="feat-card"><div class="feat-icon">💰</div><div class="feat-title">Budget Breakdown</div><div class="feat-desc">Your budget allocated intelligently across every category — venue, catering, photography, florals, attire, entertainment — based on local market rates.</div></div>
+        <div class="feat-card"><div class="feat-icon">✉</div><div class="feat-title">Vendor Outreach Emails</div><div class="feat-desc">Professional inquiry emails drafted to every shortlisted venue and vendor. Copy, paste, send. Save hours of writing and back-and-forth.</div></div>
+        <div class="feat-card"><div class="feat-icon">♡</div><div class="feat-title">Guest List & RSVPs</div><div class="feat-desc">Manage your full guest list, send invitations, and track RSVPs — all in one place. Filter by status, dietary requirements, and send bulk reminders.</div></div>
+        <div class="feat-card"><div class="feat-icon">◷</div><div class="feat-title">Day-of Timeline</div><div class="feat-desc">A complete minute-by-minute schedule for your wedding day — from hair and makeup through the grand exit. Shareable with all your vendors.</div></div>
+        <div class="feat-card"><div class="feat-icon">👗</div><div class="feat-title">Attire Recommendations</div><div class="feat-desc">Personalized bridal gown and groom attire picks — Western, South Asian, fusion, luxury. With shoppable affiliate links and style matching.</div></div>
+        <div class="feat-card"><div class="feat-icon">🌍</div><div class="feat-title">Truly Global</div><div class="feat-desc">Works for weddings in 180+ countries. Understands South Asian, East Asian, Middle Eastern, Caribbean, African, and Western wedding traditions and vendors.</div></div>
+        <div class="feat-card"><div class="feat-icon">✈</div><div class="feat-title">Honeymoon Planner</div><div class="feat-desc">Find your perfect post-wedding escape. Destination recommendations filtered by budget, vibe, and duration — with hotel affiliate links built in.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how" id="how">
+    <div class="how-inner">
+      <div class="section-label">Simple by design</div>
+      <h2 class="section-title" style="text-align:center">Three steps. Complete plan.</h2>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-title">Describe your wedding</div>
+          <div class="how-desc">Type one sentence — location, guest count, budget, style. That's all the agent needs to build your complete plan.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-title">AI builds everything</div>
+          <div class="how-desc">In 30–60 seconds, the agent researches venues, matches photographers, allocates your budget, drafts vendor emails, and recommends attire.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-title">Review and act</div>
+          <div class="how-desc">Everything syncs to your dashboard. Send emails, track RSVPs, manage your budget, and refine with the AI planner whenever you need.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials">
+    <div class="testimonials-inner">
+      <h2 class="test-title">Loved by couples worldwide</h2>
+      <div class="test-grid">
+        <div class="test-card">
+          <div class="test-stars">★★★★★</div>
+          <div class="test-quote">"I typed our wedding details and had a complete venue shortlist, budget, and 4 vendor emails ready in under a minute. This would have taken me two weekends to do manually."</div>
+          <div class="test-author">Priya & Rahul · Toronto, Canada · South Asian Wedding</div>
+        </div>
+        <div class="test-card">
+          <div class="test-stars">★★★★★</div>
+          <div class="test-quote">"We're planning a destination wedding in Tuscany from New York and Aisle found us real Italian venues we'd never heard of, with inquiry emails ready to send. Incredible."</div>
+          <div class="test-author">Sophie & Marcus · New York / Tuscany · Destination Wedding</div>
+        </div>
+        <div class="test-card">
+          <div class="test-stars">★★★★★</div>
+          <div class="test-quote">"The budget breakdown was eye-opening — it showed us exactly how to allocate $80,000 for a Bali beach wedding with realistic local pricing. No guesswork."</div>
+          <div class="test-author">Emma & James · Bali, Indonesia · Beach Wedding</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="pricing-inner">
+      <div class="section-label">Simple pricing</div>
+      <h2 class="section-title" style="text-align:center">A human planner costs $5,000.<br>Aisle Sage costs <em style="color:var(--f);font-style:italic">$79/year.</em></h2>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-name">Free</div>
+          <div class="price-amount">$0</div>
+          <div class="price-per">Forever free</div>
+          <div class="price-feats">
+            <div class="price-feat"><span class="price-feat-i">✓</span>1 AI planning conversation</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Venue shortlist preview</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Color palette</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Budget breakdown</div>
+            <div class="price-feat" style="opacity:.45">✕ Vendor emails</div>
+            <div class="price-feat" style="opacity:.45">✕ Photographer shortlist</div>
+          </div>
+          <button class="btn btn-out price-cta" onclick="openAuth('signup')">Get started free</button>
+        </div>
+        <div class="price-card featured">
+          <div class="price-badge">Most popular</div>
+          <div class="price-name">Pro Annual</div>
+          <div class="price-amount">$79</div>
+          <div class="price-per">per year · just $6.58/month</div>
+          <div class="price-feats">
+            <div class="price-feat"><span class="price-feat-i">✓</span>Unlimited AI conversations</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Global venue search</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>All vendor emails</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Guest list + RSVP</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Day-of timeline</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Attire recommendations</div>
+          </div>
+          <button class="btn btn-g price-cta" onclick="openAuth('signup')">✦ Start for $79/year</button>
+        </div>
+        <div class="price-card">
+          <div class="price-name">One-time</div>
+          <div class="price-amount">$29</div>
+          <div class="price-per">pay once · yours forever</div>
+          <div class="price-feats">
+            <div class="price-feat"><span class="price-feat-i">✓</span>Everything in Pro</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>No subscription</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Best for one wedding</div>
+            <div class="price-feat"><span class="price-feat-i">✓</span>Lifetime access</div>
+          </div>
+          <button class="btn btn-out price-cta" onclick="openAuth('signup')">Buy once</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Global -->
+  <div class="global-banner">
+    <h2 style="font-family:'Libre Baskerville',serif;font-size:clamp(22px,3vw,36px);color:var(--g3);text-align:center;max-width:600px;margin:0 auto;line-height:1.35">Built for weddings <em>everywhere</em> — not just North America</h2>
+    <div class="global-grid">
+      <div class="global-item"><div class="global-n">180+</div><div class="global-l">Countries supported</div></div>
+      <div class="global-item"><div class="global-n">15+</div><div class="global-l">Cultural traditions</div></div>
+      <div class="global-item"><div class="global-n">50K+</div><div class="global-l">Venues in database</div></div>
+      <div class="global-item"><div class="global-n">$2.4M</div><div class="global-l">Saved vs planners</div></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2 class="cta-title">Your perfect wedding starts with one sentence.</h2>
+      <p class="cta-sub">Describe your wedding. Get your complete plan in 60 seconds. Free to start — no credit card required.</p>
+      <button class="btn btn-f" style="padding:16px 36px;font-size:16px;margin-bottom:14px" onclick="openAuth('signup')">✦ Build My Wedding Plan Free</button>
+      <div style="font-size:12px;color:var(--tx3)">Takes 30 seconds to sign up · Cancel anytime</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">❧ Aisle Sage</div>
+          <div class="footer-desc">AI-powered wedding planning for couples worldwide. From Toronto to Tuscany, Bali to Dublin.</div>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <a class="footer-link" href="#features">Features</a>
+          <a class="footer-link" href="#pricing">Pricing</a>
+          <a class="footer-link" onclick="openAuth('signup')">Start planning</a>
+          <a class="footer-link" onclick="openAuth('login')">Sign in</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Support</div>
+          <a class="footer-link" onclick="showToast('Opening help centre…')">Help centre</a>
+          <a class="footer-link" onclick="showFeedback()">Send feedback</a>
+          <a class="footer-link" onclick="showToast('Opening contact form…')">Contact us</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <a class="footer-link" onclick="showToast('Opening Privacy Policy…')">Privacy Policy</a>
+          <a class="footer-link" onclick="showToast('Opening Terms of Service…')">Terms of Service</a>
+          <a class="footer-link" onclick="showToast('Opening Cookie Policy…')">Cookie Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Aisle · AI Wedding Planner · Global</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.2)">Made with ❧ for couples everywhere</div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════ AUTH MODAL ═══════════ -->
+<div id="auth-screen" onclick="if(event.target===this)closeAuth()">
+  <div class="auth-modal">
+    <div class="auth-top" style="position:relative">
+      <button class="auth-close" onclick="closeAuth()">✕</button>
+      <div class="auth-logo">Aisle Sage</div>
+      <div class="auth-modal-title" id="am-title">Welcome back</div>
+      <div class="auth-modal-sub" id="am-sub">Sign in to continue planning</div>
+    </div>
+    <div class="auth-body">
+      <div class="auth-error" id="auth-err"></div>
+      <button class="g-btn" onclick="googleSignIn()"><span style="font-size:17px;font-weight:700">G</span>Continue with Google</button>
+      <div class="or-r"><span>or continue with email</span></div>
+
+      <!-- Login form -->
+      <div id="login-form">
+        <div class="fld"><label>Email address</label><input type="email" id="li-email" placeholder="you@email.com"></div>
+        <div class="fld"><label>Password</label><input type="password" id="li-pw" placeholder="••••••••"></div>
+        <button class="auth-submit" onclick="signIn()">Sign In →</button>
+        <div class="auth-sw">No account? <a onclick="toggleAuth('signup')">Create one free</a></div>
+      </div>
+
+      <!-- Signup form -->
+      <div id="signup-form" style="display:none">
+        <div class="f2">
+          <div class="fld"><label>Partner 1</label><input type="text" id="su-n1" placeholder="Sarah"></div>
+          <div class="fld"><label>Partner 2</label><input type="text" id="su-n2" placeholder="James"></div>
+        </div>
+        <div class="f2">
+          <div class="fld"><label>Wedding date</label><input type="date" id="su-date"></div>
+          <div class="fld"><label>City / Country</label><input type="text" id="su-loc" placeholder="Toronto, Canada"></div>
+        </div>
+        <div class="fld"><label>Email address</label><input type="email" id="su-email" placeholder="you@email.com"></div>
+        <div class="fld"><label>Password</label><input type="password" id="su-pw" placeholder="Min. 8 characters"></div>
+        <button class="auth-submit" onclick="signUp()">Create Account — It's Free →</button>
+        <div class="auth-sw">Already have an account? <a onclick="toggleAuth('login')">Sign in</a></div>
+        <div style="text-align:center;margin-top:12px;font-size:10.5px;color:var(--tx4)">By signing up you agree to our <a href="#" style="color:var(--tx3)">Terms</a> and <a href="#" style="color:var(--tx3)">Privacy Policy</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="app">
+  <!-- App Nav -->
+  <nav class="appnav">
+    <a class="an-logo" href="#" onclick="if(confirm('Go back to home page?'))showLanding();return false"><span class="an-leaf">❧</span>Aisle Sage</a>
+    <div class="an-tabs">
+      <button class="an-tab active" onclick="showPage('planner',this)">✦ AI Planner</button>
+      <button class="an-tab" onclick="showPage('overview',this)">◈ Dashboard</button>
+      <button class="an-tab" onclick="showPage('guests',this)">♡ Guests<span class="an-badge" id="nb-rsvp">3</span></button>
+      <button class="an-tab" onclick="showPage('venues',this)">⌂ Venues<span class="an-badge g" id="nb-v">5</span></button>
+      <button class="an-tab" onclick="showPage('vendors',this)">◎ Vendors</button>
+      <button class="an-tab" onclick="showPage('budget',this)">◑ Budget</button>
+      <button class="an-tab" onclick="showPage('timeline',this)">◷ Timeline</button>
+      <button class="an-tab" onclick="showPage('honeymoon',this)">✈ Honeymoon</button>
+    </div>
+    <div class="an-r">
+      <span class="an-days" id="an-days">174 days</span>
+      <button class="btn btn-ghost" style="padding:6px 13px;font-size:11px" onclick="showPW('upgrade')">✦ Upgrade</button>
+      <div class="an-av" id="an-av" title="Your account">SJ</div>
+    </div>
+  </nav>
+
+  <div class="app-pages">
+
+    <!-- PLANNER -->
+    <div class="apg active" id="page-planner">
+      <div class="planner-layout">
+        <div class="agent-feed" id="agent-feed">
+          <div class="welcome" id="welcome">
+            <div class="w-crest">🌿</div>
+            <div class="w-logo">Aisle Sage</div>
+            <div class="w-sub">Your AI Wedding Planner</div>
+            <div class="w-div"></div>
+            <div class="w-desc">"Hi! I'm Sage 🌿 Tell me about your wedding and I'll help plan every detail — venues, budget, photographers, vendor emails, and more. Just chat with me naturally!"</div>
+            <div class="w-ex">
+              <div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">💍</div><div class="we-text">We're planning a romantic garden wedding in Toronto, 120 guests, October 2025, $50,000 budget!</div></div>
+              <div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🏛️</div><div class="we-text">Dreaming of a destination wedding in Tuscany, Italy — 60 guests, luxury villa or vineyard, June 2026</div></div>
+              <div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🌊</div><div class="we-text">Planning a beach wedding in Bali, 40 guests, boho-luxury vibe, $80,000. South Asian groom, Western bride!</div></div>
+              <div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🪷</div><div class="we-text">Need help with a 3-day South Asian wedding in Mississauga — Mehndi, Sangeet & reception, 300 guests, $150k</div></div>
+              <div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🏰</div><div class="we-text">Castle wedding in Ireland, 80 guests, classic elegant style, $200,000, September 2026</div></div>
+              <div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🌴</div><div class="we-text">Intimate elopement in the Maldives, 20 guests, ultra-luxury, $100,000, any date in 2026</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="plan-panel" id="plan-panel">
+          <div class="pp-hdr"><div class="pp-ht">Live Plan</div><div class="pp-hl">Auto-updating</div></div>
+          <div class="pp-body" id="pp-body"><div class="pp-empty">Your plan syncs here automatically as the agent works.</div></div>
+        </div>
+      </div>
+      <div class="input-wrap">
+        <div class="hints-row" id="hints-row">
+          <div class="hint" onclick="useEx(`We're planning a romantic garden wedding in Toronto, 120 guests, October 2025, $50,000 budget!')">💍 Toronto wedding</div>
+          <div class="hint" onclick="useEx('Dreaming of a destination wedding in Tuscany, Italy — 60 guests, luxury, June 2026')">🏛️ Tuscany destination</div>
+          <div class="hint" onclick="useEx('Beach wedding in Bali, 40 guests, boho-luxury, $80,000 — help me plan everything!')">🌊 Bali beach</div>
+          <div class="hint" onclick="useEx('3-day South Asian wedding in Mississauga — Mehndi, Sangeet & reception, 300 guests, $150k')">🪷 South Asian</div>
+          <div class="hint" onclick="useEx('What venues do you recommend for my wedding?')">⌂ Find venues</div>
+          <div class="hint" onclick="useEx('How should I allocate my wedding budget?')">💰 Budget advice</div>
+        </div>
+        <div class="irow">
+          <textarea class="ibox" id="inp" placeholder="Tell Sage about your wedding — she'll help you plan everything! 🌿" rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"
+            oninput="ar(this)"></textarea>
+          <button class="sbtn" id="sbtn" onclick="send()" title="Send">↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="apg" id="page-overview">
+      <div class="pg">
+        <div class="g4">
+          <div class="sc dk"><div class="sc-i">🗓️</div><div class="sc-l">Days to wedding</div><div class="sc-v" id="ov-days">174</div><div class="sc-s" id="ov-date">October 18, 2025</div><div class="sc-bar" style="background:rgba(255,255,255,.08)"><div class="sc-fill" style="width:52%"></div></div></div>
+          <div class="sc"><div class="sc-i">💰</div><div class="sc-l">Budget remaining</div><div class="sc-v" id="ov-bud">$34,200</div><div class="sc-s">of $50,000</div><div class="sc-bar"><div class="sc-fill" style="width:32%;background:var(--bl)"></div></div></div>
+          <div class="sc"><div class="sc-i">♡</div><div class="sc-l">RSVPs confirmed</div><div class="sc-v">47</div><div class="sc-s">of 120 invited</div><div class="sc-bar"><div class="sc-fill" style="width:39%;background:var(--sage)"></div></div></div>
+          <div class="sc"><div class="sc-i">✓</div><div class="sc-l">Tasks done</div><div class="sc-v">8<span style="font-size:14px;color:var(--tx3)">/24</span></div><div class="sc-s">On track ✦</div><div class="sc-bar"><div class="sc-fill" style="width:33%"></div></div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-hdr-t">📋 Upcoming tasks</div><a class="card-link" onclick="showPage('planner',document.querySelector('[onclick*=planner]'))">Ask AI →</a></div>
+            <div id="task-list"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:13px">
+            <div class="card">
+              <div class="card-hdr"><div class="card-hdr-t">✦ AI Suggestions</div></div>
+              <div style="padding:12px 15px;display:flex;flex-direction:column;gap:8px">
+                <div style="background:var(--fl);border:1px solid var(--fb);border-radius:8px;padding:10px 12px;cursor:pointer" onclick="useEx('Find wedding venues in my location and budget');showPage('planner',document.querySelector('[onclick*=planner]'))">
+                  <div style="font-size:8.5px;color:var(--g);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px;font-weight:700">Venue</div>
+                  <div style="font-family:'Libre Baskerville',serif;font-size:13px;margin-bottom:2px" id="sug-v">Find venues for your wedding</div>
+                  <div style="font-size:10.5px;color:var(--tx3)" id="sug-v-sub">Ask AI to search your location →</div>
+                </div>
+                <div style="background:var(--fl);border:1px solid var(--fb);border-radius:8px;padding:10px 12px;cursor:pointer" onclick="useEx('Recommend bridal gowns and groom attire for our style');showPage('planner',document.querySelector('[onclick*=planner]'))">
+                  <div style="font-size:8.5px;color:var(--sage);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px;font-weight:700">Attire</div>
+                  <div style="font-family:'Libre Baskerville',serif;font-size:13px;margin-bottom:2px">Dress & suit recommendations</div>
+                  <div style="font-size:10.5px;color:var(--tx3)">Personalized for your style →</div>
+                </div>
+                <div style="background:var(--fl);border:1px solid var(--fb);border-radius:8px;padding:10px 12px;cursor:pointer" onclick="shareplan()">
+                  <div style="font-size:8.5px;color:var(--g2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px;font-weight:700">Share</div>
+                  <div style="font-family:'Libre Baskerville',serif;font-size:13px;margin-bottom:2px">Share your plan</div>
+                  <div style="font-size:10.5px;color:var(--tx3)">Send link to your partner or family →</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-hdr"><div class="card-hdr-t">♡ RSVP Overview</div><a class="card-link" onclick="showPage('guests',document.querySelector('[onclick*=guests]'))">Manage →</a></div>
+          <div style="padding:12px 15px">
+            <div class="rsvp-stats">
+              <div class="rs"><div class="rs-n">120</div><div class="rs-l">Invited</div></div>
+              <div class="rs"><div class="rs-n" style="color:var(--sage)">47</div><div class="rs-l">Confirmed</div></div>
+              <div class="rs"><div class="rs-n" style="color:var(--bl)">8</div><div class="rs-l">Declined</div></div>
+              <div class="rs"><div class="rs-n" style="color:var(--g)">65</div><div class="rs-l">Pending</div></div>
+            </div>
+            <div class="rsvp-bar"><div class="rsvp-seg" style="width:39%;background:var(--sage)"></div><div class="rsvp-seg" style="width:7%;background:var(--bl)"></div><div class="rsvp-seg" style="flex:1;background:var(--c4)"></div></div>
+            <div style="font-size:10.5px;color:var(--tx3);display:flex;gap:12px;flex-wrap:wrap"><span style="color:var(--sage)">■ 47 confirmed</span><span style="color:var(--bl)">■ 8 declined</span><span style="color:var(--tx4)">■ 65 pending</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUESTS -->
+    <div class="apg" id="page-guests">
+      <div class="pg">
+        <div class="chip-row">
+          <button class="chip on" onclick="filterG('all',this)">All</button>
+          <button class="chip" onclick="filterG('yes',this)">Confirmed</button>
+          <button class="chip" onclick="filterG('pending',this)">Pending</button>
+          <button class="chip" onclick="filterG('no',this)">Declined</button>
+          <button class="abtn abtn-p" style="margin-left:auto" onclick="document.getElementById('add-form').classList.toggle('show')">+ Add Guest</button>
+          <button class="abtn abtn-g" onclick="sendAllInvites()">Send All</button>
+          <button class="abtn abtn-g" onclick="showToast('✉ Reminders sent to '+guests.filter(g=>g.rsvp==='pending').length+' pending guests')">Reminders</button>
+        </div>
+        <div class="add-form" id="add-form">
+          <div class="af-row">
+            <div><div class="af-lbl af-in-lbl">First name</div><input class="af-in" id="g-fn" placeholder="Emma"></div>
+            <div><div class="af-lbl af-in-lbl">Last name</div><input class="af-in" id="g-ln" placeholder="Clarke"></div>
+            <div><div class="af-lbl af-in-lbl">Email</div><input class="af-in" id="g-em" placeholder="emma@email.com"></div>
+            <div><div class="af-lbl af-in-lbl">Group</div><select class="af-in" id="g-gr"><option>Bride's Family</option><option>Groom's Family</option><option>Friends</option><option>Colleagues</option><option>VIP</option></select></div>
+            <button class="abtn abtn-p" onclick="addGuest()" style="height:36px;align-self:end;white-space:nowrap">Add</button>
+          </div>
+        </div>
+        <div class="rsvp-stats">
+          <div class="rs"><div class="rs-n" id="g-tot">7</div><div class="rs-l">Total</div></div>
+          <div class="rs"><div class="rs-n" id="g-yes" style="color:var(--sage)">3</div><div class="rs-l">Confirmed</div></div>
+          <div class="rs"><div class="rs-n" id="g-no" style="color:var(--bl)">1</div><div class="rs-l">Declined</div></div>
+          <div class="rs"><div class="rs-n" id="g-pend" style="color:var(--g)">3</div><div class="rs-l">Pending</div></div>
+        </div>
+        <div style="background:var(--c2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;box-shadow:var(--sh);overflow-x:auto">
+          <table class="gtbl" style="width:100%;min-width:540px">
+            <thead><tr style="background:var(--c3)"><th>Guest</th><th>Group</th><th>Dietary</th><th>RSVP</th><th>Actions</th></tr></thead>
+            <tbody id="g-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENUES -->
+    <div class="apg" id="page-venues">
+      <div class="pg">
+        <div class="chip-row">
+          <button class="abtn abtn-p" onclick="useEx('Find more wedding venues in my location');showPage('planner',document.querySelector('[onclick*=planner]'))">✦ Search More Venues</button>
+          <button class="abtn abtn-g" onclick="showToast('✦ Drafting emails to all shortlisted venues…')">Draft All Emails</button>
+        </div>
+        <div class="pipe" id="venue-pipeline"></div>
+      </div>
+    </div>
+
+    <!-- VENDORS -->
+    <div class="apg" id="page-vendors">
+      <div class="pg">
+        <div class="vtabs">
+          <button class="vtab on" onclick="switchVT('catering',this)">🍽️ Catering</button>
+          <button class="vtab" onclick="switchVT('photography',this)">📸 Photography</button>
+          <button class="vtab" onclick="switchVT('women',this)">👗 Bridal Attire</button>
+          <button class="vtab" onclick="switchVT('men',this)">🤵 Groom Attire</button>
+          <button class="vtab" onclick="switchVT('events',this)">🎊 Events</button>
+        </div>
+        <div class="g3" id="vendor-grid"></div>
+      </div>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="apg" id="page-budget">
+      <div class="pg">
+        <div class="b-hero">
+          <div><div class="bh-lbl">Total Budget</div><div class="bh-tot" id="b-total">$50,000</div><div class="bh-sub" id="b-sub">$15,800 spent · $34,200 remaining</div></div>
+          <div><div class="bh-pct">32%</div><div class="bh-pl">Spent so far</div></div>
+        </div>
+        <div class="g2" id="budget-grid"></div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="apg" id="page-timeline">
+      <div class="pg">
+        <div class="tl-gen">
+          <div class="tl-inputs">
+            <div><div class="tl-lbl">Ceremony time</div><input class="tl-in" type="time" id="tl-time" value="14:00"></div>
+            <div><div class="tl-lbl">Venue type</div><select class="tl-in"><option>Garden / Outdoor</option><option>Hotel / Ballroom</option><option>Beach</option><option>Heritage / Castle</option><option>Destination resort</option></select></div>
+            <div><div class="tl-lbl">Reception style</div><select class="tl-in"><option>Dinner & dancing</option><option>Cocktail reception</option><option>Buffet dinner</option><option>Multi-day</option></select></div>
+          </div>
+          <button class="abtn abtn-p" onclick="genTL()">✦ Generate My Timeline</button>
+        </div>
+        <div id="tl-out" style="display:none">
+          <div style="background:var(--c2);border:1px solid var(--bd);border-radius:12px;padding:16px 20px;box-shadow:var(--sh)" id="tl-items"></div>
+          <div class="chip-row" style="margin-top:11px">
+            <button class="chip" onclick="showToast('✦ Timeline exported as PDF')">Export PDF</button>
+            <button class="chip" onclick="showToast('✦ Timeline shared with vendors')">Share with vendors</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HONEYMOON -->
+    <div class="apg" id="page-honeymoon">
+      <div class="pg">
+        <div class="tl-gen" style="margin-bottom:18px">
+          <div class="tl-inputs">
+            <div><div class="tl-lbl">Budget</div><select class="tl-in"><option>Under $5,000</option><option>$5,000–$10,000</option><option selected>$10,000–$20,000</option><option>$20,000+</option></select></div>
+            <div><div class="tl-lbl">Vibe</div><select class="tl-in"><option>Beach & relaxation</option><option>Adventure</option><option>Culture & cities</option><option>Luxury resort</option><option>Safari</option></select></div>
+            <div><div class="tl-lbl">Duration</div><select class="tl-in"><option>5–7 days</option><option selected>7–10 days</option><option>2 weeks</option><option>3+ weeks</option></select></div>
+          </div>
+          <button class="abtn abtn-p" onclick="showToast('✦ Finding your ideal honeymoon destinations…')">Find Destinations ✦</button>
+        </div>
+        <div class="g3" id="hm-grid"></div>
+      </div>
+    </div>
+
+  </div><!-- /app-pages -->
+
+  <!-- Feedback button -->
+  <button class="feedback-btn show" id="fb-btn" onclick="showFeedback()">💬 Beta Feedback</button>
+</div><!-- /app -->
+
+<!-- Feedback modal -->
+<div class="feedback-modal" id="fb-modal">
+  <div class="fb-title">How's your experience?</div>
+  <div class="fb-sub">Help us improve Aisle before public launch</div>
+  <div class="fb-stars" id="fb-stars">
+    <span class="fb-star" onclick="rateStar(1)">★</span>
+    <span class="fb-star" onclick="rateStar(2)">★</span>
+    <span class="fb-star" onclick="rateStar(3)">★</span>
+    <span class="fb-star" onclick="rateStar(4)">★</span>
+    <span class="fb-star" onclick="rateStar(5)">★</span>
+  </div>
+  <textarea class="fb-ta" id="fb-text" placeholder="What's working well? What could be better? Any bugs?"></textarea>
+  <button class="fb-submit" onclick="submitFeedback()">Send Feedback ✦</button>
+</div>
+
+<!-- Share plan modal -->
+<div class="share-modal" id="share-modal" onclick="if(event.target===this)closeShare()">
+  <div class="share-box">
+    <div class="share-title">Share your plan ❧</div>
+    <div class="share-sub">Send this link to your partner, family, or wedding coordinator. They can view your plan and RSVP status.</div>
+    <div class="share-url">
+      <input type="text" id="share-url-input" readonly>
+      <button onclick="copyShareUrl()">Copy</button>
+    </div>
+    <div class="share-options">
+      <div class="share-opt" onclick="showToast('Opening WhatsApp…')">💬 WhatsApp</div>
+      <div class="share-opt" onclick="showToast('Opening email…')">✉ Email</div>
+      <div class="share-opt" onclick="showToast('Link copied!')">🔗 Copy link</div>
+      <div class="share-opt" onclick="showToast('Downloading QR code…')">📱 QR Code</div>
+    </div>
+    <button class="abtn abtn-g" style="width:100%" onclick="closeShare()">Done</button>
+  </div>
+</div>
+
+<!-- Paywall -->
+<div class="pw-ov" id="pw-ov" onclick="if(event.target===this)closePW()">
+  <div class="pw-box">
+    <button class="pw-x" onclick="closePW()">✕</button>
+    <div class="pw-top">
+      <div class="pw-logo">Aisle Sage</div>
+      <div class="pw-head" id="pw-head">Unlock your complete plan</div>
+      <div class="pw-sub" id="pw-sub">Your free preview is ready</div>
+    </div>
+    <div class="pw-body">
+      <div class="pw-toggle">
+        <button class="pw-tab" onclick="setPlan('monthly',this)">Monthly</button>
+        <button class="pw-tab sel" onclick="setPlan('annual',this)">Annual <span style="font-size:8.5px;background:rgba(107,143,113,.15);color:var(--sage);padding:1px 6px;border-radius:20px;margin-left:2px;font-weight:700">Save 45%</span></button>
+      </div>
+      <div class="pw-price-area">
+        <div class="pw-price" id="pw-price"><sup>$</sup>79<sub>/year</sub></div>
+        <div class="pw-pnote" id="pw-pnote">Billed $79/year · Cancel anytime</div>
+        <div class="pw-save" id="pw-save">Save 45% vs monthly</div>
+      </div>
+      <div class="pw-feats">
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Unlimited AI conversations</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Global venue search</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Photographer shortlists</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Vendor outreach emails</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Guest list + RSVP</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Budget tracker</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Day-of timeline</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Attire picks</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Color palette advisor</div>
+        <div class="pw-feat"><span class="pw-feat-i">✓</span>Honeymoon planner</div>
+      </div>
+      <button class="pw-cta" onclick="handlePay()">✦ Unlock Everything</button>
+      <div class="pw-note">Secured by Stripe · 7-day money-back guarantee · Cancel anytime</div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════ SUPABASE + STATE ═══════════════════════════
+let sb=null;
+
+// Fetch Supabase config from secure server endpoint then init
+(function(){
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onload=async()=>{
+    try{
+      const r=await fetch('/api/supabase-config');
+      const cfg=await r.json();
+      if(cfg.url&&cfg.key){
+        sb=window.supabase.createClient(cfg.url,cfg.key);
+        await checkExistingSession();
+      }
+    }catch(e){console.log('Supabase init error:',e);}
+  };
+  document.head.appendChild(s);
+})();
+
+const STORE_KEY='aisle_plan_v1';
+let W={n1:'',n2:'',date:'',loc:'',budget:50000,style:'Romantic Garden'};
+let plan={venues:[],photographers:[],emails:[],palette:null,budgetBreakdown:[],guestList:[],attire:null,timeline:false};
+let chatHist=[],busy=false,hintsOff=false,isPro=false,freeUsed=0;
+let currentUser=null;
+const FREE_LIMIT=1;
+
+// Save to Supabase + localStorage backup
+async function savePlan(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify({W,plan,freeUsed,isPro,chatHist:chatHist.slice(-10)}));}catch(e){}
+  if(currentUser&&sb){
+    try{
+      await sb.from('plans').upsert({
+        user_id:currentUser.id,
+        venues:plan.venues,photographers:plan.photographers,
+        emails:plan.emails,palette:plan.palette,
+        budget_breakdown:plan.budgetBreakdown,
+        guest_list:plan.guestList,
+        chat_history:chatHist.slice(-20),
+        is_pro:isPro,
+        updated_at:new Date().toISOString()
+      },{onConflict:'user_id'});
+    }catch(e){console.log('Save error:',e);}
+  }
+}
+
+// Load from Supabase first, localStorage fallback
+async function loadUserPlan(){
+  if(currentUser&&sb){
+    try{
+      const{data}=await sb.from('plans').select('*').eq('user_id',currentUser.id).single();
+      if(data){
+        if(data.venues?.length)plan.venues=data.venues;
+        if(data.photographers?.length)plan.photographers=data.photographers;
+        if(data.emails?.length)plan.emails=data.emails;
+        if(data.palette)plan.palette=data.palette;
+        if(data.budget_breakdown?.length)plan.budgetBreakdown=data.budget_breakdown;
+        if(data.guest_list?.length)plan.guestList=data.guest_list;
+        if(data.chat_history?.length)chatHist=data.chat_history;
+        if(data.is_pro)isPro=data.is_pro;
+        return true;
+      }
+    }catch(e){console.log('Load error:',e);}
+  }
+  try{
+    const d=localStorage.getItem(STORE_KEY);
+    if(!d)return false;
+    const p=JSON.parse(d);
+    if(p.W)W=p.W;if(p.plan)plan=p.plan;
+    if(p.freeUsed)freeUsed=p.freeUsed;
+    if(p.isPro)isPro=p.isPro;
+    if(p.chatHist)chatHist=p.chatHist;
+    return true;
+  }catch(e){return false;}
+}
+
+// Auto-check session on load
+async function checkExistingSession(){
+  if(!sb)return;
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){
+      currentUser=session.user;
+      if(session.user.user_metadata?.n1)W.n1=session.user.user_metadata.n1;
+      if(session.user.user_metadata?.n2)W.n2=session.user.user_metadata.n2;
+      const saved=await loadUserPlan();
+      closeAuth();
+      launchApp(saved);
+    }
+  }catch(e){console.log('Session error:',e);}
+}
+
+// ═══════════ LANDING ═══════════════════════════════════
+window.addEventListener('scroll',()=>{
+  const n=document.getElementById('lnav');
+  if(n)n.classList.toggle('scrolled',window.scrollY>40);
+});
+function scrollDemo(){document.getElementById('demo')?.scrollIntoView({behavior:'smooth'});}
+function showLanding(){
+  document.getElementById('landing').style.display='block';
+  document.getElementById('app').style.display='none';
+  document.getElementById('app').classList.remove('show');
+  savePlan();
+}
+
+// ═══════════ AUTH ═══════════════════════════════════════
+function openAuth(type){
+  document.getElementById('auth-screen').classList.add('show');
+  toggleAuth(type);
+  document.getElementById('auth-err').classList.remove('show');
+}
+function closeAuth(){document.getElementById('auth-screen').classList.remove('show');}
+function toggleAuth(t){
+  document.getElementById('login-form').style.display=t==='login'?'block':'none';
+  document.getElementById('signup-form').style.display=t==='signup'?'block':'none';
+  document.getElementById('am-title').textContent=t==='login'?'Welcome back':'Start planning free';
+  document.getElementById('am-sub').textContent=t==='login'?'Sign in to continue planning':'Create your free account';
+}
+function showAuthErr(msg){const e=document.getElementById('auth-err');e.textContent=msg;e.classList.add('show');}
+
+async function signIn(){
+  const email=document.getElementById('li-email').value.trim();
+  const pw=document.getElementById('li-pw').value;
+  if(!email){showAuthErr('Please enter your email.');return;}
+  if(!pw){showAuthErr('Please enter your password.');return;}
+  if(!email.includes('@')){showAuthErr('Please enter a valid email.');return;}
+  const btn=document.querySelector('#login-form .auth-submit');
+  btn.textContent='Signing in…';btn.disabled=true;
+  if(sb){
+    try{
+      const{data,error}=await sb.auth.signInWithPassword({email,password:pw});
+      if(error){
+        showAuthErr(error.message.includes('Invalid')?'Incorrect email or password.':error.message);
+        btn.textContent='Sign In →';btn.disabled=false;return;
+      }
+      currentUser=data.user;
+      if(data.user.user_metadata?.n1)W.n1=data.user.user_metadata.n1;
+      if(data.user.user_metadata?.n2)W.n2=data.user.user_metadata.n2;
+      const saved=await loadUserPlan();
+      closeAuth();launchApp(saved);
+    }catch(e){
+      showAuthErr('Connection error. Please try again.');
+      btn.textContent='Sign In →';btn.disabled=false;
+    }
+  } else {closeAuth();launchApp(false);}
+  btn.textContent='Sign In →';btn.disabled=false;
+}
+
+async function signUp(){
+  const n1=document.getElementById('su-n1').value.trim();
+  const n2=document.getElementById('su-n2').value.trim();
+  const email=document.getElementById('su-email').value.trim();
+  const pw=document.getElementById('su-pw').value;
+  if(!n1||!n2){showAuthErr('Please enter both partner names.');return;}
+  if(!email||!email.includes('@')){showAuthErr('Please enter a valid email.');return;}
+  if(pw.length<8){showAuthErr('Password must be at least 8 characters.');return;}
+  W.n1=n1;W.n2=n2;
+  W.date=document.getElementById('su-date').value;
+  W.loc=document.getElementById('su-loc').value||'Toronto, Canada';
+  const btn=document.querySelector('#signup-form .auth-submit');
+  btn.textContent='Creating account…';btn.disabled=true;
+  if(sb){
+    try{
+      const{data,error}=await sb.auth.signUp({
+        email,password:pw,
+        options:{data:{n1,n2,full_name:n1+' & '+n2}}
+      });
+      if(error){
+        showAuthErr(error.message.includes('already')?'Email already registered. Please sign in.':error.message);
+        btn.textContent="Create Account — It's Free →";btn.disabled=false;return;
+      }
+      currentUser=data.user;
+      if(currentUser){
+        await sb.from('profiles').upsert({
+          id:currentUser.id,n1,n2,
+          wedding_date:W.date||null,
+          location:W.loc,budget:W.budget,style:W.style
+        });
+      }
+      closeAuth();launchApp(false);
+      showToast('✦ Welcome to Aisle Sage! Account created.');
+    }catch(e){
+      showAuthErr('Connection error. Please try again.');
+      btn.textContent="Create Account — It's Free →";btn.disabled=false;
+    }
+  } else {closeAuth();launchApp(false);}
+}
+
+async function googleSignIn(){
+  if(sb){
+    try{
+      const{error}=await sb.auth.signInWithOAuth({
+        provider:'google',
+        options:{redirectTo:window.location.origin}
+      });
+      if(error)throw error;
+      showToast('✦ Opening Google sign-in…');
+    }catch(e){showToast('Google unavailable. Please use email.');}
+  } else {closeAuth();setTimeout(()=>launchApp(false),600);}
+}
+
+function launchApp(hasExisting){
+  document.getElementById('landing').style.display='none';
+  const app=document.getElementById('app');
+  app.style.display='flex';app.classList.add('show');
+  initApp();
+  if(hasExisting&&(plan.venues.length>0||chatHist.length>0)){
+    showToast('✦ Your wedding plan has been restored!');
+    if(plan.venues.length>0)syncPlanSidebar();
+    if(chatHist.length>0){
+      const w=document.getElementById('welcome');if(w)w.remove();
+      if(!hintsOff){document.getElementById('hints-row').style.display='none';hintsOff=true;}
+      chatHist.forEach(msg=>{
+        if(msg.role==='user')addUser(msg.content);
+        else{const mc=newAI();const el=document.createElement('div');el.className='ait';el.innerHTML=msg.content.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--f2);font-weight:700">$1</strong>');mc.appendChild(el);}
+      });
+      scrollFeed();
+    }
+  }
+}
+
+// ═══════════ APP INIT ════════════════════════════════════
+function initApp(){
+  checkFounder();
+  const n1=W.n1,n2=W.n2;
+  document.getElementById('an-av').textContent=(n1[0]||'S')+(n2[0]||'J');
+  if(W.date){
+    const d=new Date(W.date);
+    const diff=Math.ceil((d-new Date())/864e5);
+    document.getElementById('an-days').textContent=(diff>0?diff:'Soon!')+' days';
+    document.getElementById('ov-days').textContent=diff>0?diff:'Soon!';
+    document.getElementById('ov-date').textContent=d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  }
+  if(W.loc){document.getElementById('sug-v').textContent='Find venues in '+W.loc;document.getElementById('sug-v-sub').textContent='AI searches real venues for your location →';}
+  document.getElementById('b-total').textContent='$'+Number(W.budget).toLocaleString();
+  renderTasks();renderVenuePipeline();renderVendors('catering');renderBudget();renderHoneymoon();renderGuests();
+  if(plan.venues.length>0)syncPlanSidebar();
+}
+
+function showPage(id,el){
+  document.querySelectorAll('.apg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.an-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+// ═══════════ DATA ════════════════════════════════════════
+const PALS={
+  garden:{name:'Romantic Garden',sw:[{c:'#E8C5C5',n:'Blush'},{c:'#8FAF96',n:'Sage'},{c:'#F0E0C0',n:'Champagne'},{c:'#C8A870',n:'Gold'},{c:'#D4B8C8',n:'Mauve'}],desc:'Soft romantic tones for garden ceremonies.'},
+  tuscany:{name:'Tuscan Harvest',sw:[{c:'#C17F5A',n:'Terracotta'},{c:'#8A9E6A',n:'Olive'},{c:'#D4AF37',n:'Gold'},{c:'#E8D5B0',n:'Linen'},{c:'#8B3A3A',n:'Burgundy'}],desc:'Warm earthy tones for Italian villa settings.'},
+  beach:{name:'Coastal Serenity',sw:[{c:'#F5F0E8',n:'Sand'},{c:'#7AB0C0',n:'Seafoam'},{c:'#E8C87A',n:'Coral'},{c:'#FFFFFF',n:'White'},{c:'#8FA8A0',n:'Ocean'}],desc:'Breezy coastal tones for beach weddings.'},
+  desi:{name:'Royal Desi',sw:[{c:'#C41E3A',n:'Crimson'},{c:'#D4AF37',n:'Gold'},{c:'#1A3A5C',n:'Navy'},{c:'#2D5A27',n:'Emerald'},{c:'#8B1A1A',n:'Maroon'}],desc:'Rich jewel tones for South Asian celebrations.'},
+  luxury:{name:'Modern Luxury',sw:[{c:'#1C3A2E',n:'Forest'},{c:'#B8922A',n:'Gold'},{c:'#F8F3E8',n:'Cream'},{c:'#6B8F71',n:'Sage'},{c:'#2C1810',n:'Espresso'}],desc:'Sophisticated forest and gold with cream accents.'},
+  boho:{name:'Boho Rustic',sw:[{c:'#C8956C',n:'Terracotta'},{c:'#E8D5B0',n:'Linen'},{c:'#8FAF96',n:'Sage'},{c:'#D4B8A0',n:'Nude'},{c:'#7A6050',n:'Mocha'}],desc:'Earthy warm tones for rustic outdoor weddings.'},
+  classic:{name:'Classic Elegant',sw:[{c:'#F5F0F0',n:'Ivory'},{c:'#C0A0A0',n:'Dusty Rose'},{c:'#8090A8',n:'Steel Blue'},{c:'#D4C8A0',n:'Champagne'},{c:'#404040',n:'Charcoal'}],desc:'Timeless tones for elegant formal weddings.'},
+  castle:{name:'Celtic Heritage',sw:[{c:'#2A4A30',n:'Emerald'},{c:'#8B7340',n:'Antique Gold'},{c:'#F0E8D8',n:'Stone'},{c:'#6A5068',n:'Heather'},{c:'#2A2020',n:'Slate'}],desc:'Deep heritage tones for castle weddings.'},
+};
+const PHS=[
+  {em:'🍁',name:'Maple & Light Studio',style:'Romantic Editorial',region:'Canada',desc:'Toronto award-winners. Luminous romantic imagery.',price:'$3,800–5,200',stars:'★★★★★'},
+  {em:'🌙',name:'Sotto La Luna',style:'Fine Art',region:'Italy/Europe',desc:'Italian fine art. Tuscan villas & Amalfi specialists.',price:'$6,500–10,000',stars:'★★★★★'},
+  {em:'🌊',name:'Blue Lagoon Photography',style:'Luxury Destination',region:'Maldives/Asia',desc:'Maldives & Southeast Asia. Cinematic captures.',price:'$5,800–9,000',stars:'★★★★★'},
+  {em:'🪷',name:'Desi Moments',style:'South Asian Specialist',region:'Canada/India',desc:'Multi-day South Asian packages.',price:'$4,000–7,000',stars:'★★★★★'},
+  {em:'✦',name:'Blanc et Or',style:'Classic Luxury',region:'France/Europe',desc:'Paris-based. France, Monaco & Switzerland.',price:'$7,000–12,000',stars:'★★★★★'},
+  {em:'🌍',name:'Northern Light Photo',style:'International',region:'Worldwide',desc:'No travel fees. 40+ countries.',price:'$5,500–9,500',stars:'★★★★★'},
+  {em:'🌺',name:'The Barefoot Lens',style:'Tropical',region:'Bali/Thailand',desc:'Bali, Thailand & Maldives.',price:'$3,500–5,500',stars:'★★★★☆'},
+  {em:'🏰',name:'Heritage & Haze',style:'Moody Fine Art',region:'Ireland/Scotland',desc:'Castle and countryside masters.',price:'$5,000–8,000',stars:'★★★★★'},
+  {em:'🌅',name:'Golden Hour Collective',style:'Bohemian Editorial',region:'Americas',desc:'New York-based. Available destination worldwide.',price:'$4,500–7,000',stars:'★★★★☆'},
+  {em:'📸',name:'Violet Hour Photo',style:'Documentary',region:'Canada',desc:'Vancouver-based. Candid emotional storytelling.',price:'$4,200–6,000',stars:'★★★★★'},
+  {em:'🌾',name:'Raga & Rose',style:'South Asian Destination',region:'Asia/UAE',desc:'South Asian destination across India, UAE & Southeast Asia.',price:'$4,500–8,000',stars:'★★★★★'},
+  {em:'🌞',name:'Luz de Sol',style:'Warm & Candid',region:'Americas/Caribbean',desc:'Miami & Caribbean. Warm sun-drenched imagery.',price:'$3,200–5,000',stars:'★★★★☆'},
+];
+const PRODS={
+  women:[
+    {em:'👗',name:'BHLDN Willowby Gown',type:'Bridal Gown',desc:'Flowing lace A-line, ivory/blush.',price:'$1,890',link:'https://www.bhldn.com'},
+    {em:'👗',name:'Grace Loves Lace Ava',type:'Boho Bridal',desc:'Soft Italian lace, relaxed silhouette.',price:'$2,200',link:'https://graceloveslace.com'},
+    {em:'🪷',name:'Anita Dongre Lehenga',type:'South Asian',desc:'Hand-embroidered silk lehenga.',price:'$2,500–8,000',link:'https://anitadongre.com'},
+    {em:'👗',name:'Vera Wang Dahlia',type:'Luxury Bridal',desc:'Structured bodice, romantic skirt.',price:'$4,800',link:'https://www.verawang.com'},
+  ],
+  men:[
+    {em:'🤵',name:'SuitSupply Havana',type:'Modern Suit',desc:'Slim fit Italian wool.',price:'$599',link:'https://www.suitsupply.com'},
+    {em:'👘',name:'Manyavar Royal Sherwani',type:'Indian Sherwani',desc:'Embroidered silk sherwani.',price:'$650',link:'https://www.manyavar.com'},
+    {em:'👔',name:'Indochino Custom',type:'Made-to-Measure',desc:'Fully customized. Group discounts.',price:'From $599',link:'https://www.indochino.com'},
+    {em:'🎩',name:'The Black Tux',type:'Tuxedo',desc:'Classic tuxedo. Rental or purchase.',price:'$200–800',link:'https://www.theblacktux.com'},
+  ],
+};
+const TL_BASE=[
+  {t:-300,e:'Hair & makeup begins',n:'5 hours before for full bridal party'},
+  {t:-150,e:'Bridal party gets ready',n:'Champagne and preparation'},
+  {t:-120,e:'First look',n:'Private moment before ceremony'},
+  {t:-90,e:'Wedding party portraits',n:'On-location photography'},
+  {t:-60,e:'Guests arrive',n:'Ushers in position, ambient music'},
+  {t:-30,e:'Processional begins',n:''},
+  {t:0,e:'❧ Ceremony begins',n:''},
+  {t:45,e:'Ceremony ends',n:'Recessional'},
+  {t:60,e:'Cocktail hour',n:'Guests proceed'},
+  {t:120,e:'Reception opens',n:''},
+  {t:135,e:'Grand entrance',n:'MC announces wedding party'},
+  {t:145,e:'Speeches & toasts',n:'15–20 minutes'},
+  {t:165,e:'First dance',n:'Followed by parent dances'},
+  {t:180,e:'Dinner served',n:''},
+  {t:240,e:'Cake cutting',n:''},
+  {t:255,e:'Open dancing',n:''},
+  {t:360,e:'Last dance & grand exit ✦',n:'Sparklers or petals sendoff'},
+];
+const BCOLS=['#B8922A','#6B8F71','#C07060','#9B8EA0','#D4AC50','#C07060','#6B8F71','#78716C','#B8922A','#A8A29E'];
+
+// ═══════════ AGENT HELPERS ════════════════════════════
+function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function scrollFeed(){const f=document.getElementById('agent-feed');if(f)setTimeout(()=>f.scrollTop=f.scrollHeight,40);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function appendWelcome(){
+  const w=document.createElement('div');w.className='welcome';w.id='welcome';
+  w.innerHTML=`<div class="w-crest">❧</div><div class="w-logo">Aisle Sage</div><div class="w-sub">Your AI Wedding Planner · Global</div><div class="w-div"></div><div class="w-desc">"Describe your wedding anywhere in the world — I'll autonomously build your complete plan."</div><div class="w-ex"><div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">💍</div><div class="we-text">Romantic garden wedding Toronto, 120 guests, October 2025, $50,000.</div></div><div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🏛️</div><div class="we-text">Destination wedding Tuscany, 60 guests, luxury style, $120,000, June 2026.</div></div><div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🌊</div><div class="we-text">Beach wedding Bali, 40 guests, boho-luxury, $80,000. South Asian groom, Western bride.</div></div><div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🪷</div><div class="we-text">South Asian 3-day wedding Mississauga, 300 guests, $150,000.</div></div><div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🏰</div><div class="we-text">Castle wedding Ireland, 80 guests, classic elegant, $200,000.</div></div><div class="we" onclick="useEx(this.querySelector('.we-text').textContent)"><div class="we-icon">🌴</div><div class="we-text">Intimate elopement Maldives, 20 guests, ultra-luxury, $100,000.</div></div></div>`;
+  document.getElementById('agent-feed').appendChild(w);
+}
+function useEx(txt){document.getElementById('inp').value=txt;ar(document.getElementById('inp'));send();}
+
+// Feed builders
+function addUser(txt){
+  const el=document.createElement('div');el.className='msg u';
+  el.innerHTML=`<div class="av u">You</div><div class="mc"><div class="ubbl">${txt.replace(/</g,'&lt;')}</div></div>`;
+  document.getElementById('agent-feed').appendChild(el);scrollFeed();
+}
+function newAI(){
+  const el=document.createElement('div');el.className='msg';
+  const id='mc-'+Date.now();
+  el.innerHTML=`<div class="av ai">A</div><div class="mc" id="${id}"></div>`;
+  document.getElementById('agent-feed').appendChild(el);
+  return document.getElementById(id);
+}
+function addTS(mc,txt,state='done'){
+  let tw=mc.querySelector('.tw');
+  if(!tw){tw=document.createElement('div');tw.className='tw';mc.prepend(tw);}
+  const s=document.createElement('div');s.className='ts '+state;
+  s.innerHTML=`<div class="ti ${state==='spin'?'spin':state==='done'?'done':'pend'}">${state==='done'?'✓':''}</div><span>${txt}</span>`;
+  tw.appendChild(s);scrollFeed();return s;
+}
+function updTS(s,state,txt){
+  s.className='ts '+state;
+  const i=s.querySelector('.ti');
+  i.className='ti '+(state==='spin'?'spin':state==='done'?'done':'pend');
+  i.textContent=state==='done'?'✓':'';
+  if(txt)s.querySelector('span').textContent=txt;
+}
+function addText(mc,html){
+  const el=document.createElement('div');el.className='ait';
+  el.innerHTML=html.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  mc.appendChild(el);scrollFeed();
+}
+function addBlock(mc,label,el,locked=false){
+  const w=document.createElement('div');w.className='rb';
+  if(label){const l=document.createElement('div');l.className='rb-lbl';l.textContent=label;w.appendChild(l);}
+  if(locked)el.classList.add('locked');
+  w.appendChild(el);mc.appendChild(w);scrollFeed();
+}
+function addActs(mc,btns){
+  const row=document.createElement('div');row.className='act-row';
+  btns.forEach(b=>{const btn=document.createElement('button');btn.className='abtn '+(b.p?'abtn-p':'abtn-g');btn.textContent=b.l;btn.onclick=b.fn;row.appendChild(btn);});
+  mc.appendChild(row);scrollFeed();
+}
+
+// Renderers
+function mkVenueWrap(vs){
+  const w=document.createElement('div');
+  vs.forEach(v=>{
+    const el=document.createElement('div');el.className='r-ven';
+    el.innerHTML=`<div style="flex:1;min-width:0"><div class="rv-name">${v.name}</div><div class="rv-loc">📍 ${v.location||v.vicinity||''}</div><div class="rv-desc">${v.description||''}</div></div><div class="rv-r"><div class="rv-price">${v.price||''}</div><div class="rv-stars">${v.stars||'★★★★★'}</div><button class="rv-btn" onclick="event.stopPropagation();${isPro?`showToast('✦ Drafting email for ${(v.name||'').replace(/'/g,"\\'")}…')`:`showPW('gate')`}">Inquire ↗</button></div>`;
+    w.appendChild(el);
+  });return w;
+}
+function mkPHGrid(phs){
+  const g=document.createElement('div');g.className='r-g2';
+  phs.forEach(p=>{const el=document.createElement('div');el.className='r-ph';el.innerHTML=`<div class="rph-em">${p.em}</div><div class="rph-name">${p.name}</div><div class="rph-style">${p.style}</div><div class="rph-desc">${p.desc}</div><div class="rph-ft"><span class="rph-price">${p.price}</span><span style="font-size:9.5px;color:var(--g);opacity:.7">${p.stars}</span></div>`;g.appendChild(el);});
+  return g;
+}
+function mkProdGrid(ps){
+  const g=document.createElement('div');g.className='r-g2';
+  ps.forEach(p=>{const el=document.createElement('a');el.className='r-prod';el.href=p.link;el.target='_blank';el.innerHTML=`<div class="rprod-em">${p.em}</div><div class="rprod-name">${p.name}</div><div class="rprod-type">${p.type}</div><div class="rprod-desc">${p.desc}</div><div class="rprod-ft"><span class="rprod-price">${p.price}</span><span class="rprod-link">Shop →</span></div>`;g.appendChild(el);});
+  return g;
+}
+function mkPal(pal){
+  const el=document.createElement('div');el.className='r-pal';
+  el.innerHTML=`<div class="rpal-name">${pal.name}</div><div class="rpal-sw">${pal.sw.map(s=>`<div class="rpal-s"><div class="rpal-c" style="background:${s.c}"></div><div class="rpal-l">${s.n}</div></div>`).join('')}</div><div class="rpal-desc">${pal.desc}</div>`;
+  return el;
+}
+function mkBudgetBlock(budget,items){
+  const el=document.createElement('div');el.className='r-bud';
+  el.innerHTML=`<div class="rbud-hdr"><span class="rbud-tot-l">Total Budget</span><span class="rbud-tot-v">$${Number(budget).toLocaleString()}</span></div>`+items.map((item,i)=>{
+    const pct=Math.min(Math.round((item.amount/budget)*100),100);
+    return`<div class="rbud-item"><div class="rbud-dot" style="background:${BCOLS[i%BCOLS.length]}"></div><div class="rbud-name">${item.category}</div><div class="rbud-bar"><div class="rbud-fill" style="width:${pct}%;background:${BCOLS[i%BCOLS.length]}"></div></div><div class="rbud-val">$${Number(item.amount).toLocaleString()} · ${pct}%</div></div>`;
+  }).join('');
+  return el;
+}
+function mkEmailWrap(emails){
+  const w=document.createElement('div');
+  emails.forEach(email=>{
+    const id='e'+Math.random().toString(36).slice(2);
+    const el=document.createElement('div');el.className='r-email';
+    el.innerHTML=`<div class="remail-hdr"><div><div class="remail-to">To: ${email.to}</div><div class="remail-subj">${email.subject}</div></div><button class="remail-copy" onclick="${isPro?`copyE('${id}')`:`showPW('gate')`}">${isPro?'Copy':'🔒 Unlock'}</button></div><div class="remail-body" id="${id}" style="${isPro?'':'filter:blur(5px);user-select:none'}">${email.body}</div>`;
+    w.appendChild(el);
+  });return w;
+}
+function copyE(id){navigator.clipboard.writeText(document.getElementById(id)?.textContent||'').then(()=>showToast('✦ Email copied to clipboard'));}
+function mkTimeline(ctime){
+  const[ch,cm]=(ctime||'14:00').split(':').map(Number);const base=ch*60+cm;
+  const el=document.createElement('div');el.className='r-tl';
+  TL_BASE.forEach(item=>{
+    const tot=base+item.t;const h=Math.floor(((tot%1440)+1440)%1440/60);const m=((tot%60)+60)%60;
+    const ap=h>=12?'PM':'AM';const h12=h%12||12;
+    const div=document.createElement('div');div.className='rtl-i';
+    div.innerHTML=`<div class="rtl-time">${h12}:${m.toString().padStart(2,'0')} ${ap}</div><div class="rtl-dot"></div><div><div class="rtl-ev">${item.e}</div>${item.n?`<div class="rtl-note">${item.n}</div>`:''}</div>`;
+    el.appendChild(div);
+  });return el;
+}
+function mkGuestBlock(gs){
+  const yes=gs.filter(g=>g.rsvp==='yes').length,no=gs.filter(g=>g.rsvp==='no').length,pend=gs.filter(g=>g.rsvp==='pending').length;
+  const el=document.createElement('div');
+  el.innerHTML=`<div class="r-gs"><div class="r-gs-s"><div class="r-gs-n">${gs.length}</div><div class="r-gs-l">Total</div></div><div class="r-gs-s"><div class="r-gs-n" style="color:var(--sage)">${yes}</div><div class="r-gs-l">Confirmed</div></div><div class="r-gs-s"><div class="r-gs-n" style="color:var(--bl)">${no}</div><div class="r-gs-l">Declined</div></div><div class="r-gs-s"><div class="r-gs-n" style="color:var(--g)">${pend}</div><div class="r-gs-l">Pending</div></div></div><table class="r-gtbl"><thead><tr><th>Name</th><th>Group</th><th>RSVP</th></tr></thead><tbody>${gs.slice(0,7).map(g=>`<tr><td style="font-weight:600">${g.name}</td><td style="color:var(--tx3)">${g.group}</td><td><span class="rbdg rbdg-${g.rsvp==='yes'?'y':g.rsvp==='no'?'n':'p'}">${g.rsvp==='yes'?'Confirmed':g.rsvp==='no'?'Declined':'Pending'}</span></td></tr>`).join('')}</tbody></table>`;
+  return el;
+}
+
+function addGate(mc){
+  const g=document.createElement('div');g.className='gate';
+  g.innerHTML=`<div style="font-family:'Libre Baskerville',serif;font-size:20px;color:var(--g);margin-bottom:9px">❧</div><div class="gate-title">Your free preview is ready</div><div class="gate-sub">Venue shortlist, color palette, and budget are above. <strong>Upgrade to Pro</strong> to unlock photographer shortlist, vendor emails, attire picks, day-of timeline, and guest list.</div><div class="gate-btns"><button class="gate-p" onclick="showPW('gate')">Unlock Everything — from $8/mo</button><button class="gate-s" onclick="showPW('gate')">View all plans</button></div>`;
+  mc.appendChild(g);scrollFeed();
+}
+
+// ═══════════ PLAN SIDEBAR SYNC ═════════════════════════
+function syncPlanSidebar(){
+  const p=plan;let h='';
+  if(W.style||W.loc){h+=`<div class="ppsec"><div class="ppsec-t">Wedding</div><div class="ppi" onclick="showPage('overview',document.querySelector('[onclick*=overview]'))"><div class="ppi-n">${W.style||'Your Wedding'}</div><div class="ppi-s">${W.loc||''}</div><div class="ppi-s">${W.date?new Date(W.date).toLocaleDateString('en-US',{month:'short',year:'numeric'}):''}</div>${W.budget?`<div class="ppi-p">$${Number(W.budget).toLocaleString()} budget</div>`:''}</div></div>`;}
+  if(p.palette){h+=`<div class="ppsec"><div class="ppsec-t">Color Palette</div><div class="ppi"><div class="ppi-n">${p.palette.name}</div><div style="display:flex;gap:3px;margin-top:6px">${p.palette.sw.map(s=>`<div style="flex:1;height:14px;border-radius:3px;background:${s.c};box-shadow:0 1px 3px rgba(0,0,0,.1)" title="${s.n}"></div>`).join('')}</div></div></div>`;}
+  if(p.venues.length){
+    h+=`<div class="ppsec"><div class="ppsec-t">Venues (${p.venues.length})</div>${p.venues.slice(0,3).map(v=>`<div class="ppi" onclick="showPage('venues',document.querySelector('[onclick*=venues]'))"><div class="ppi-n">${v.name}</div><div class="ppi-s">${v.location||v.vicinity||''}</div>${v.price?`<div class="ppi-p">${v.price}</div>`:''}</div>`).join('')}</div>`;
+    VENUE_PIPELINE.shortlisted=p.venues.map(v=>({name:v.name,loc:v.location||v.vicinity||'',price:v.price||''}));
+    renderVenuePipeline();
+    document.getElementById('nb-v').textContent=p.venues.length;
+  }
+  if(p.photographers.length){
+    h+=`<div class="ppsec"><div class="ppsec-t">Photographers</div>${p.photographers.slice(0,2).map(ph=>`<div class="ppi" style="${isPro?'':'filter:blur(3px);pointer-events:none'}"><div class="ppi-n">${ph.name}</div><div class="ppi-s">${ph.style}</div><div class="ppi-p">${ph.price}</div></div>`).join('')}${!isPro?`<div class="ppi" style="cursor:pointer;text-align:center;color:var(--f);font-size:10.5px;font-weight:700" onclick="showPW('gate')">🔒 Upgrade to unlock</div>`:''}</div>`;
+  }
+  if(W.budget){h+=`<div class="ppsec"><div class="ppsec-t">Budget</div><div class="ppi" onclick="showPage('budget',document.querySelector('[onclick*=budget]'))"><div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--tx3);margin-bottom:4px"><span>Total</span><span style="color:var(--g);font-weight:700">$${Number(W.budget).toLocaleString()}</span></div><div style="height:3px;background:var(--c4);border-radius:2px;overflow:hidden;margin-bottom:4px"><div style="width:32%;height:100%;border-radius:2px;background:var(--g)"></div></div><div class="ppi-s">32% allocated</div></div></div>`;}
+  if(p.emails.length){h+=`<div class="ppsec"><div class="ppsec-t">Vendor Emails</div><div class="ppi" onclick="${isPro?`showToast('✦ Sending all emails…')`:`showPW('gate')`}" style="cursor:pointer"><div class="ppi-n">${p.emails.length} emails ready</div><div class="ppi-s">${isPro?'Click to send all':'🔒 Upgrade to send'}</div></div></div>`;}
+  if(p.guestList.length){h+=`<div class="ppsec"><div class="ppsec-t">Guest List</div><div class="ppi" onclick="showPage('guests',document.querySelector('[onclick*=guests]'))"><div class="ppi-n">${p.guestList.length} guests</div><div class="ppi-s">${p.guestList.filter(g=>g.rsvp==='yes').length} confirmed · ${p.guestList.filter(g=>g.rsvp==='pending').length} pending</div></div></div>`;
+    // Merge into guests tab
+    p.guestList.forEach(pg=>{
+      const parts=pg.name.split(' ');const fn=parts[0]||'';const ln=parts.slice(1).join(' ')||'';
+      if(!guests.some(g=>g.fn===fn&&g.ln===ln)){guests.push({fn,ln,em:'',gr:pg.group,diet:'None',rsvp:pg.rsvp,inv:pg.rsvp!=='pending'});}
+    });
+    renderGuests();
+    document.getElementById('nb-rsvp').textContent=guests.filter(g=>g.rsvp==='pending').length;
+  }
+  h+=`<button class="pp-cta" onclick="${isPro?`showToast('✦ Exporting full plan as PDF…')`:`showPW('gate')`}">${isPro?'Export Full Plan ↗':'🔒 Upgrade to Export'}</button>`;
+  document.getElementById('pp-body').innerHTML=h;
+  document.getElementById('ov-bud').textContent='$'+(W.budget-15800).toLocaleString();
+  if(p.budgetBreakdown.length){
+    BUDGET_ITEMS.forEach((b,i)=>{if(p.budgetBreakdown[i]){b.budget=p.budgetBreakdown[i].amount;b.name=p.budgetBreakdown[i].category;}});
+    renderBudget();
+    document.getElementById('b-total').textContent='$'+Number(W.budget).toLocaleString();
+  }
+  savePlan();
+}
+
+// ═══════════ SYSTEM PROMPT (GLOBAL) ════════════════════
+
+
+// ═══════════ STREAMING CONVERSATIONAL SAGE ═════════════
+
+// Sage personality system prompt - conversational not JSON
+function buildSYS(){
+  return`You are Sage, a warm, brilliant, and deeply knowledgeable AI wedding planner inside Aisle Sage. You're like that friend who has planned hundreds of weddings worldwide and genuinely loves helping couples.
+
+COUPLE CONTEXT: ${W.n1} & ${W.n2} | Location: ${W.loc||'not set yet'} | Budget: ${W.budget?'$'+W.budget.toLocaleString():'not set yet'} | Style: ${W.style||'not set yet'} | Date: ${W.date||'not set yet'}
+
+YOUR PERSONALITY:
+- Warm, excited, and genuinely caring about this couples wedding
+- Conversational and natural — like texting a knowledgeable friend
+- Use occasional emojis naturally (not excessively)
+- Ask follow-up questions to understand their vision better
+- Give specific, actionable advice — not generic platitudes
+- Remember everything they've told you in this conversation
+- When they ask casual questions ("how are you", "thanks") respond briefly and warmly, then gently guide back to wedding planning
+
+HOW YOU RESPOND:
+- For casual chat: respond naturally in 1-3 sentences, then invite them to continue planning
+- For wedding questions: give rich, specific, expert advice
+- For venue requests: describe 2-3 REAL specific venues for their exact location with prices
+- For budget questions: give specific numbers based on their location and style
+- For photography: recommend 2-3 specific photographers matched to their region
+- Always be specific — never vague. Real venue names, real prices, real advice.
+
+GLOBAL EXPERTISE: You know real venues, vendors, photographers and pricing for weddings in Canada, USA, UK, Ireland, Italy, France, Spain, Greece, Bali, Maldives, Thailand, India, UAE, Australia, Japan, South Africa, Caribbean, and 100+ other locations. You deeply understand South Asian, East Asian, Middle Eastern, African, Caribbean, and Western wedding traditions.
+
+IMPORTANT: Respond conversationally in plain text. NO JSON. NO markdown headers. Write like you're texting — warm, natural, flowing. When mentioning specific venues or vendors, describe them naturally in your text. Keep responses focused and not too long — this is a conversation, not an essay. If you need to share a list, keep it to 3 items max.`;
+}
+
+// ═══════════ SEND ══════════════════════════════════════
+function activateFounder(){
+  isPro=true;freeUsed=0;
+  savePlan();
+  // Update UI
+  document.getElementById('an-av').style.background='var(--g)';
+  document.getElementById('an-av').title='Founder Access ✦';
+  // Update upgrade button
+  const upgBtn=document.querySelector('.tn-btn-gold');
+  if(upgBtn){upgBtn.textContent='✦ Founder Access';upgBtn.style.background='var(--g2)';upgBtn.onclick=()=>showToast('✦ You have full founder access — all features unlocked!');}
+  showToast('✦ Founder access activated — full Pro unlocked permanently!');
+  // Re-sync sidebar if plan exists
+  if(plan.venues.length>0)syncPlanSidebar();
+}
+
+// Check founder status on load
+function checkFounder(){
+  const fd=localStorage.getItem('aisle_founder');
+  if(fd==='SAGE2025'){isPro=true;freeUsed=0;setTimeout(activateFounder,500);}
+}
+
+async function send(){
+  const inp=document.getElementById('inp');
+  const txt=inp.value.trim();
+  if(!txt||busy)return;
+
+  // Founder bypass
+  if(txt.toUpperCase()==='SAGE2025'){
+    inp.value='';ar(inp);
+    localStorage.setItem('aisle_founder','SAGE2025');
+    activateFounder();
+    return;
+  }
+
+  const w=document.getElementById('welcome');if(w)w.remove();
+  if(!hintsOff){document.getElementById('hints-row').style.display='none';hintsOff=true;}
+  inp.value='';ar(inp);
+  document.getElementById('sbtn').disabled=true;
+  busy=true;
+
+  addUser(txt);
+  chatHist.push({role:'user',content:txt});
+  const mc=newAI();
+
+  // Create streaming text element immediately
+  const streamEl=document.createElement('div');
+  streamEl.className='ait';
+  streamEl.style.minHeight='24px';
+  mc.appendChild(streamEl);
+
+  // Typing cursor
+  const cursor=document.createElement('span');
+  cursor.style.cssText='display:inline-block;width:2px;height:16px;background:var(--g);margin-left:2px;vertical-align:middle;animation:blink 1s infinite';
+  cursor.id='stream-cursor';
+  streamEl.appendChild(cursor);
+
+  // Add blink animation
+  if(!document.getElementById('blink-style')){
+    const s=document.createElement('style');
+    s.id='blink-style';
+    s.textContent='@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}';
+    document.head.appendChild(s);
+  }
+
+  scrollFeed();
+
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5',
+        max_tokens:1024,
+        stream:true,
+        system:buildSYS(),
+        messages:chatHist
+      })
+    });
+
+    if(!res.ok){
+      const errData=await res.json();
+      throw new Error(errData.error||'API error '+res.status);
+    }
+
+    // Stream the response
+    const reader=res.body.getReader();
+    const decoder=new TextDecoder();
+    let fullText='';
+    let buffer='';
+
+    while(true){
+      const{done,value}=await reader.read();
+      if(done)break;
+
+      buffer+=decoder.decode(value,{stream:true});
+      const lines=buffer.split('\n');
+      buffer=lines.pop()||'';
+
+      for(const line of lines){
+        if(line.startsWith('data: ')){
+          const data=line.slice(6).trim();
+          if(data==='[DONE]')continue;
+          try{
+            const parsed=JSON.parse(data);
+            // Handle different event types
+            if(parsed.type==='content_block_delta'&&parsed.delta?.type==='text_delta'){
+              fullText+=parsed.delta.text;
+              // Update display — replace cursor with text+cursor
+              streamEl.innerHTML=fullText.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+              const newCursor=document.createElement('span');
+              newCursor.style.cssText='display:inline-block;width:2px;height:16px;background:var(--g);margin-left:2px;vertical-align:middle;animation:blink 1s infinite';
+              streamEl.appendChild(newCursor);
+              scrollFeed();
+            }
+          }catch(e){/* skip malformed chunks */}
+        }
+      }
+    }
+
+    // Remove cursor, finalize text
+    streamEl.innerHTML=fullText.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--f2);font-weight:700">$1</strong>');
+
+    // Save to history
+    chatHist.push({role:'assistant',content:fullText});
+
+    // Extract any wedding details mentioned and update plan quietly
+    extractAndUpdatePlan(fullText, txt);
+
+  }catch(e){
+    console.error('Stream error:',e);
+    streamEl.innerHTML='';
+    // Fallback to non-streaming
+    try{
+      const res2=await fetch('/api/chat',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-5',
+          max_tokens:1024,
+          system:buildSYS(),
+          messages:chatHist
+        })
+      });
+      const data=await res2.json();
+      const text=data.content?.[0]?.text||"I'm having trouble connecting right now. Please try again in a moment.";
+      streamEl.innerHTML=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--f2);font-weight:700">$1</strong>');
+      chatHist.push({role:'assistant',content:text});
+      extractAndUpdatePlan(text, txt);
+    }catch(e2){
+      streamEl.innerHTML="I'm having trouble connecting right now. Please try again in a moment.";
+    }
+  }
+
+  busy=false;
+  document.getElementById('sbtn').disabled=false;
+  scrollFeed();
+  savePlan();
+}
+
+// Extract wedding details from conversation and update plan/sidebar quietly
+function extractAndUpdatePlan(text, userMsg){
+  const lower=userMsg.toLowerCase()+' '+text.toLowerCase();
+
+  // Extract budget mentions
+  const budgetMatch=userMsg.match(/\$(\d{1,3}(?:,\d{3})*(?:k)?)\s*(?:budget|total)?/i);
+  if(budgetMatch){
+    let b=budgetMatch[1].replace(/,/g,'');
+    if(b.endsWith('k'))b=parseInt(b)*1000;
+    else b=parseInt(b);
+    if(b>5000&&b<2000000){W.budget=b;document.getElementById('b-total').textContent='$'+Number(b).toLocaleString();}
+  }
+
+  // Extract location
+  const locationWords=['toronto','london','paris','bali','tuscany','maldives','sydney','dubai','mumbai','new york','los angeles','miami','barcelona','santorini','ireland','scotland','greece'];
+  for(const loc of locationWords){
+    if(lower.includes(loc)){W.loc=loc.charAt(0).toUpperCase()+loc.slice(1);break;}
+  }
+
+  // Extract guest count
+  const guestMatch=userMsg.match(/(\d+)\s*(?:guests?|people|attendees)/i);
+  if(guestMatch)W.guests=parseInt(guestMatch[1]);
+
+  // Extract style keywords
+  const styles=['garden','rustic','beach','luxury','bohemian','boho','classic','modern','vintage','south asian','indian','traditional','destination','castle'];
+  for(const style of styles){
+    if(lower.includes(style)){W.style=style.charAt(0).toUpperCase()+style.slice(1);break;}
+  }
+
+  // Update sidebar with whatever we know
+  syncPlanSidebar();
+}
+
+
+
+// ═══════════ DASHBOARD ════════════════════════════════
+const TASKS=[
+  {txt:'Set total wedding budget',done:true,tag:'Done',tc:'d'},
+  {txt:'Choose wedding style',done:true,tag:'Done',tc:'d'},
+  {txt:'Book ceremony venue',done:false,tag:'Urgent',tc:'u'},
+  {txt:'Book wedding photographer',done:false,tag:'Urgent',tc:'u'},
+  {txt:'Send save-the-dates',done:false,tag:'Soon',tc:''},
+  {txt:'Choose bridal gown',done:false,tag:'3 months',tc:''},
+  {txt:'Choose groom attire',done:false,tag:'3 months',tc:''},
+  {txt:'Book caterer',done:false,tag:'3 months',tc:''},
+  {txt:'Finalize guest list',done:false,tag:'Soon',tc:''},
+  {txt:'Generate day-of timeline',done:false,tag:'2 months',tc:''},
+];
+function renderTasks(){
+  const el=document.getElementById('task-list');if(!el)return;
+  el.innerHTML=TASKS.map((t,i)=>`<div class="task${t.done?' done':''}" onclick="togTask(${i})"><div class="task-ck">${t.done?'✓':''}</div><div class="task-txt">${t.txt}</div><div class="task-tag${t.tc?' '+t.tc:''}">${t.tag}</div></div>`).join('');
+}
+function togTask(i){TASKS[i].done=!TASKS[i].done;renderTasks();}
+
+let VENUE_PIPELINE={
+  shortlisted:[{name:'Old Mill Toronto',loc:'Toronto, ON',price:'$12,000–18,000'},{name:'Casa Loma',loc:'Toronto, ON',price:'$15,000–22,000'}],
+  inquired:[{name:'Elora Mill',loc:'Elora, ON',price:'$8,500–14,000'}],
+  awaiting:[{name:'Nestleton Waters Inn',loc:'Nestleton, ON',price:'$6,000–10,000'}],
+  booked:[],
+};
+function renderVenuePipeline(){
+  const el=document.getElementById('venue-pipeline');if(!el)return;
+  const cols=[{key:'shortlisted',lbl:'Shortlisted',tc:'t-sl'},{key:'inquired',lbl:'Inquired',tc:'t-bk'},{key:'awaiting',lbl:'Awaiting Reply',tc:''},{key:'booked',lbl:'Booked ✓',tc:'t-bk'}];
+  el.innerHTML=cols.map(col=>`<div class="pipe-col"><div class="pipe-col-hdr">${col.lbl}<span class="pipe-cnt">${(VENUE_PIPELINE[col.key]||[]).length}</span></div>${(VENUE_PIPELINE[col.key]||[]).map(v=>`<div class="vc-chip"><div class="vc-name">${v.name}</div><div class="vc-loc">📍 ${v.loc||v.location||''}</div><div class="vc-price">${v.price||''}</div><div class="vc-tag ${col.tc}">${col.lbl}</div></div>`).join('')}<button class="pipe-add" onclick="showToast('✦ Add venue to ${col.lbl}')">+ Add venue</button></div>`).join('');
+}
+
+let guests=[
+  {fn:'Emma',ln:'Clarke',em:'emma@email.com',gr:"Bride's Family",diet:'None',rsvp:'yes',inv:true},
+  {fn:'James',ln:'Morton',em:'jmorton@email.com',gr:"Groom's Family",diet:'None',rsvp:'yes',inv:true},
+  {fn:'Priya',ln:'Shah',em:'priya.s@gmail.com',gr:'Friends',diet:'Vegetarian',rsvp:'pending',inv:true},
+  {fn:'Daniel',ln:'Kim',em:'dkim@work.com',gr:'Colleagues',diet:'None',rsvp:'no',inv:true},
+  {fn:'Sophie',ln:'Laurent',em:'sophie@email.com',gr:'Friends',diet:'Gluten-free',rsvp:'yes',inv:true},
+  {fn:'Marcus',ln:'Webb',em:'mwebb@email.com',gr:"Groom's Family",diet:'None',rsvp:'pending',inv:false},
+  {fn:'Aisha',ln:'Patel',em:'aisha.p@gmail.com',gr:'Friends',diet:'Halal',rsvp:'pending',inv:false},
+];
+let gFilter='all';
+function renderGuests(){
+  const list=gFilter==='all'?guests:guests.filter(g=>g.rsvp===gFilter);
+  const tb=document.getElementById('g-tbody');if(!tb)return;
+  tb.innerHTML=list.map((g,i)=>`<tr><td><div style="font-weight:600">${g.fn} ${g.ln}</div><div style="font-size:10.5px;color:var(--tx3)">${g.em||'—'}</div></td><td style="font-size:11.5px;color:var(--tx3)">${g.gr}</td><td style="font-size:11.5px;color:var(--tx3)">${g.diet}</td><td><span class="rp rp-${g.rsvp}">${g.rsvp==='yes'?'✓ Confirmed':g.rsvp==='no'?'✕ Declined':g.inv?'⏳ Awaiting':'Not sent'}</span></td><td><div style="display:flex;gap:5px">${!g.inv?`<button class="g-act send" onclick="sendInv(${guests.indexOf(g)})">Send</button>`:`<button class="g-act" onclick="showToast('✉ Reminder sent to ${g.fn}')">Remind</button>`}<button class="g-act" onclick="remGuest(${guests.indexOf(g)})">✕</button></div></td></tr>`).join('');
+  const yes=guests.filter(g=>g.rsvp==='yes').length,no=guests.filter(g=>g.rsvp==='no').length,pend=guests.filter(g=>g.rsvp==='pending').length;
+  ['g-tot','g-yes','g-no','g-pend'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=[guests.length,yes,no,pend][i];});
+  const nb=document.getElementById('nb-rsvp');if(nb)nb.textContent=pend;
+}
+function filterG(f,el){gFilter=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderGuests();}
+function addGuest(){
+  const fn=document.getElementById('g-fn').value.trim(),ln=document.getElementById('g-ln').value.trim();
+  if(!fn||!ln){showToast('Please enter a name');return;}
+  guests.push({fn,ln,em:document.getElementById('g-em').value||'—',gr:document.getElementById('g-gr').value,diet:'None',rsvp:'pending',inv:false});
+  ['g-fn','g-ln','g-em'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-form').classList.remove('show');
+  renderGuests();savePlan();showToast(`♡ ${fn} ${ln} added`);
+}
+function sendInv(i){if(i>=0&&i<guests.length){guests[i].inv=true;renderGuests();savePlan();showToast(`✉ Invite sent to ${guests[i].fn}`);}}
+function remGuest(i){if(i>=0&&i<guests.length){const n=guests[i].fn;guests.splice(i,1);renderGuests();savePlan();showToast(`Removed ${n}`);}}
+function sendAllInvites(){guests.forEach(g=>g.inv=true);renderGuests();savePlan();showToast(`✉ All invites sent to ${guests.length} guests`);}
+
+const VENDORS_DATA={
+  catering:[
+    {icon:'🌿',name:'Lavender & Thyme Co.',type:'Farm-to-table',desc:'Award-winning seasonal catering. Elegant grazing tables and tasting menus.',price:'$85–110/head',status:'contacted'},
+    {icon:'🍛',name:'Spice Route Catering',type:'South Asian & Fusion',desc:'Indian, Pakistani & fusion banquets. Available globally.',price:'$70–95/head',status:'new'},
+    {icon:'🍽️',name:'The White Tablecloth',type:'Fine Dining',desc:'Upscale fine dining with sommelier service. North America, Europe & UAE.',price:'$120–180/head',status:'new'},
+  ],
+  photography:[
+    {icon:'🍁',name:'Maple & Light Studio',type:'Romantic Editorial',desc:'Toronto award-winners. Luminous romantic imagery.',price:'$3,800–5,200',status:'booked'},
+    {icon:'🌙',name:'Sotto La Luna',type:'Fine Art',desc:'Italian fine art. Tuscan villas & European specialists.',price:'$6,500–10,000',status:'new'},
+    {icon:'🌊',name:'Blue Lagoon Photography',type:'Luxury Destination',desc:'Maldives & Southeast Asia. Cinematic overwater captures.',price:'$5,800–9,000',status:'new'},
+  ],
+  women:[
+    {icon:'👗',name:'BHLDN by Anthropologie',type:'Modern Romantic',desc:'Accessible luxury bridal. Garden-inspired aesthetic. Ships globally.',price:'$500–2,500',status:'new'},
+    {icon:'👗',name:'Grace Loves Lace',type:'Bohemian Bridal',desc:'Australian boho-luxury. Signature lace gowns. Ships worldwide.',price:'$800–3,500',status:'contacted'},
+    {icon:'🪷',name:'Anita Dongre Bridal',type:'South Asian',desc:'Premier Indian bridal designer. Exquisite lehengas & fusion wear.',price:'$1,500–8,000',status:'new'},
+  ],
+  men:[
+    {icon:'🤵',name:'SuitSupply',type:'Modern Suits',desc:'High-quality European tailoring. 150+ locations globally.',price:'$400–1,200',status:'contacted'},
+    {icon:'👘',name:'Manyavar Mohey',type:'Indian Sherwanis',desc:'India\'s leading ethnic wear. Sherwanis & kurtas.',price:'$300–1,500',status:'new'},
+    {icon:'👔',name:'Indochino',type:'Made-to-Measure',desc:'Fully customized suits. Groomsmen group discounts.',price:'From $599',status:'new'},
+  ],
+  events:[
+    {icon:'🎊',name:'The Grand Affair Co.',type:'Full-Service',desc:'End-to-end wedding management. Destination & South Asian specialists.',price:'$5,000–15,000',status:'new'},
+    {icon:'🍸',name:'Cocktail & Co.',type:'Cocktail Parties',desc:'Cocktail hours, welcome parties & post-wedding brunches.',price:'$3,000–8,000',status:'contacted'},
+    {icon:'💃',name:'Sangeet & Celebration',type:'South Asian Events',desc:'Mehendi, Sangeet, Haldi & reception. India, Canada, UK & UAE.',price:'$4,000–12,000',status:'new'},
+  ],
+};
+function renderVendors(tab){
+  const el=document.getElementById('vendor-grid');if(!el)return;
+  const sm={new:'New',contacted:'Contacted',booked:'Booked ✓'};
+  el.innerHTML=(VENDORS_DATA[tab]||[]).map(v=>`<div class="vc"><div class="vc-i">${v.icon}</div><div class="vc-n">${v.name}</div><div class="vc-t">${v.type}</div><div class="vc-d">${v.desc}</div><div class="vc-ft"><span class="vc-pr">${v.price}</span><span class="vc-st st-${v.status}">${sm[v.status]}</span></div><button class="vc-btn" onclick="showToast('✦ ${v.status==='new'?'Drafting request for':'Opening details for'} ${(v.name||'').replace(/'/g,"\\'")}…')">${v.status==='new'?'Request Quote':'View Details'}</button></div>`).join('');
+}
+function switchVT(tab,el){document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderVendors(tab);}
+
+let BUDGET_ITEMS=[
+  {name:'Venue',budget:17500,spent:8500,color:'#B8922A'},
+  {name:'Catering',budget:12000,spent:0,color:'#6B8F71'},
+  {name:'Photography',budget:6000,spent:4200,color:'#C07060'},
+  {name:'Flowers & Décor',budget:4500,spent:1800,color:'#9B8EA0'},
+  {name:'Music & Entertainment',budget:3000,spent:0,color:'#D4AC50'},
+  {name:'Bridal Attire',budget:2500,spent:1300,color:'#C07060'},
+  {name:'Groom Attire',budget:1200,spent:0,color:'#6B8F71'},
+  {name:'Event Management',budget:3000,spent:0,color:'#78716C'},
+  {name:'Honeymoon Fund',budget:3300,spent:0,color:'#B8922A'},
+  {name:'Miscellaneous',budget:3500,spent:0,color:'#A8A29E'},
+];
+function renderBudget(){
+  const el=document.getElementById('budget-grid');if(!el)return;
+  el.innerHTML=BUDGET_ITEMS.map(b=>{
+    const pct=b.budget>0?Math.min(Math.round(b.spent/b.budget*100),100):0;
+    const over=b.spent>b.budget&&b.budget>0;
+    return`<div class="bi"><div class="bi-top"><div class="bi-name">${b.name}</div><div class="bi-r"><div class="bi-spent" style="color:${over?'var(--bl)':b.spent>0?'var(--tx)':'var(--tx3)'}">${b.spent?'$'+b.spent.toLocaleString():'—'}</div><div class="bi-bud">of $${b.budget.toLocaleString()}</div></div></div><div class="bi-bar"><div class="bi-fill" style="width:${pct}%;background:${over?'var(--bl)':b.color}"></div></div><div class="bi-st">${b.budget===0?'Not budgeted':b.spent===0?'Not yet spent':over?'⚠ Over budget':'$'+(b.budget-b.spent).toLocaleString()+' remaining'}</div></div>`;
+  }).join('');
+}
+
+function genTL(){
+  const ctime=document.getElementById('tl-time').value||'14:00';
+  const[ch,cm]=ctime.split(':').map(Number);const base=ch*60+cm;
+  document.getElementById('tl-out').style.display='block';
+  document.getElementById('tl-items').innerHTML=TL_BASE.map(item=>{
+    const tot=base+item.t;const h=Math.floor(((tot%1440)+1440)%1440/60);const m=((tot%60)+60)%60;
+    const ap=h>=12?'PM':'AM';const h12=h%12||12;
+    return`<div class="tl-item"><div class="tl-time">${h12}:${m.toString().padStart(2,'0')} ${ap}</div><div class="tl-dot"></div><div><div class="tl-ev">${item.e}</div>${item.n?`<div class="tl-note">${item.n}</div>`:''}</div></div>`;
+  }).join('');
+  showToast('✦ Your day-of timeline is ready!');
+}
+
+const HM=[
+  {em:'🌺',name:'Bali, Indonesia',loc:'Southeast Asia',bg:'#EDF4EF',why:'Rice terraces, infinity pools, temple sunsets.',price:'From $4,500/couple'},
+  {em:'🏝️',name:'Maldives',loc:'Indian Ocean',bg:'#E8F4F0',why:'Overwater bungalows, turquoise lagoons, total seclusion.',price:'From $8,000/couple'},
+  {em:'🍷',name:'Amalfi Coast, Italy',loc:'Southern Italy',bg:'#F2E8D8',why:'Cliffside villages, azure sea, world-class cuisine.',price:'From $6,000/couple'},
+  {em:'🌊',name:'Santorini, Greece',loc:'Cyclades, Greece',bg:'#E8F4F0',why:'Iconic sunsets, whitewashed villages, volcanic beaches.',price:'From $5,000/couple'},
+  {em:'🌸',name:'Kyoto & Tokyo, Japan',loc:'Japan',bg:'#FAF0F0',why:'Cherry blossoms, ancient temples, modern luxury.',price:'From $5,500/couple'},
+  {em:'🦁',name:'Serengeti, Tanzania',loc:'East Africa',bg:'#F5EDD6',why:'Luxury safari sundowners on the savanna.',price:'From $9,000/couple'},
+  {em:'🐠',name:'Turks & Caicos',loc:'Caribbean',bg:'#E8F4F0',why:'Grace Bay — world\'s best beach. Barefoot luxury.',price:'From $6,500/couple'},
+  {em:'🏰',name:'Côte d\'Azur, France',loc:'French Riviera',bg:'#EEEEF5',why:'Monaco glamour, Cannes charm, Nice old town.',price:'From $7,500/couple'},
+  {em:'🏔️',name:'New Zealand',loc:'South Pacific',bg:'#EDF4EF',why:'Dramatic fjords, adventure, and world-class wines.',price:'From $7,000/couple'},
+];
+function renderHoneymoon(){
+  const el=document.getElementById('hm-grid');if(!el)return;
+  el.innerHTML=HM.map(h=>`<div class="hm-card" onclick="showToast('♡ ${h.name} saved to wishlist')"><div class="hm-img" style="background:${h.bg}">${h.em}</div><div class="hm-body"><div class="hm-name">${h.name}</div><div class="hm-loc">📍 ${h.loc}</div><div class="hm-why">${h.why}</div><div class="hm-ft"><span class="hm-price">${h.price}</span><button style="padding:4px 11px;border:1.5px solid var(--bd2);border-radius:20px;background:transparent;font-family:'Nunito',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);font-weight:700;transition:all .2s" onclick="event.stopPropagation();showToast('♡ Saved')">Save ♡</button></div></div></div>`).join('');
+}
+
+// ═══════════ PAYWALL ══════════════════════════════════
+const PLANS={
+  monthly:{p:'12',sub:'/mo',note:'Billed monthly · Cancel anytime',save:null,link:'https://buy.stripe.com/test_bJe7sMeli8bO9vP5BS7g402'},
+  annual:{p:'79',sub:'/year',note:'Billed $79/year · Cancel anytime',save:'Save 45% vs monthly',link:'https://buy.stripe.com/test_7sY7sM6SQ0Jm9vP0hy7g401'},
+};
+let curPlan='annual';
+function setPlan(p,el){
+  curPlan=p;
+  document.querySelectorAll('.pw-tab').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');
+  const d=PLANS[p];
+  if(!d)return;
+  document.getElementById('pw-price').innerHTML=`<sup>$</sup>${d.p}<sub>${d.sub}</sub>`;
+  document.getElementById('pw-pnote').textContent=d.note;
+  const sv=document.getElementById('pw-save');
+  if(d.save){sv.textContent=d.save;sv.style.display='inline-block';}
+  else sv.style.display='none';
+}
+function showPW(ctx){
+  const h=document.getElementById('pw-head'),s=document.getElementById('pw-sub');
+  if(ctx==='gate'){h.textContent='Unlock your complete plan';s.textContent='Your free preview is ready — upgrade to act on everything';}
+  else{h.textContent='Unlock your full wedding plan';s.textContent='Everything you need for your perfect day';}
+  document.getElementById('pw-ov').classList.add('show');
+}
+function closePW(){document.getElementById('pw-ov').classList.remove('show');}
+function handlePay(){
+  const p=PLANS[curPlan];
+  if(p&&p.link){
+    closePW();
+    const email=currentUser?.email||'';
+    const url=p.link+(email?'?prefilled_email='+encodeURIComponent(email):'');
+    window.open(url,'_blank');
+    showToast('✦ Opening secure Stripe checkout…');
+  }
+}
+
+function activatePro(){
+  isPro=true;freeUsed=0;savePlan();
+  document.getElementById('an-av').title='Aisle Sage Pro ✦';
+  if(plan.venues.length>0)syncPlanSidebar();
+  showToast('✦ Welcome to Aisle Sage Pro — all features unlocked!');
+}
+
+// ═══════════ SHARE PLAN ═══════════════════════════════
+function shareplan(){
+  const url=`https://aisle.wedding/plan/${btoa(W.n1+'+'+W.n2).replace(/=/g,'')}`;
+  document.getElementById('share-url-input').value=url;
+  document.getElementById('share-modal').classList.add('show');
+}
+// alias for onclick
+window.shareplan=shareplan;
+window.shareplan=shareplan;
+function closeShare(){document.getElementById('share-modal').classList.remove('show');}
+function copyShareUrl(){
+  navigator.clipboard.writeText(document.getElementById('share-url-input').value)
+    .then(()=>showToast('✦ Plan link copied to clipboard'))
+    .catch(()=>showToast('Select and copy the URL manually'));
+}
+
+// ═══════════ FEEDBACK ═════════════════════════════════
+let fbRating=0;
+function showFeedback(){
+  const m=document.getElementById('fb-modal');
+  m.classList.toggle('show');
+}
+function rateStar(n){
+  fbRating=n;
+  document.querySelectorAll('.fb-star').forEach((s,i)=>s.classList.toggle('active',i<n));
+}
+function submitFeedback(){
+  const txt=document.getElementById('fb-text').value.trim();
+  if(!fbRating){showToast('Please select a star rating');return;}
+  // In production: POST to your backend
+  console.log('Feedback:',{rating:fbRating,text:txt,user:`${W.n1} & ${W.n2}`,loc:W.loc});
+  document.getElementById('fb-modal').classList.remove('show');
+  document.getElementById('fb-text').value='';
+  fbRating=0;
+  document.querySelectorAll('.fb-star').forEach(s=>s.classList.remove('active'));
+  showToast('✦ Thank you! Your feedback helps us improve Aisle.');
+}
+
+// ═══════════ UTILS ════════════════════════════════════
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+
+// Click outside close
+document.getElementById('share-modal').addEventListener('click',function(e){if(e.target===this)closeShare();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePW();closeShare();document.getElementById('fb-modal').classList.remove('show');}});
+document.getElementById('inp').addEventListener('input',function(){ar(this);});
+
+// Close feedback when clicking outside
+document.addEventListener('click',e=>{
+  const fb=document.getElementById('fb-modal');
+  const fbb=document.getElementById('fb-btn');
+  if(fb.classList.contains('show')&&!fb.contains(e.target)&&!fbb.contains(e.target)){fb.classList.remove('show');}
+});
+</script>
+</body>
+</html>
