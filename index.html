@@ -1714,25 +1714,29 @@ let sb=null;
 
       // NORMAL FLOW — unsubscribe after first use to prevent repeated SIGNED_IN
       const authListener=sb.auth.onAuthStateChange(async(event,session)=>{
-        if(window._resetting)return;
-        if((event==='INITIAL_SESSION'||event==='SIGNED_IN')&&session){
-          if(window._launchedUserId===session.user.id)return;
-          window._launchedUserId=session.user.id;
-          window._appLaunched=true;
-          authListener.data.subscription.unsubscribe();
-          currentUser=session.user;
-          if(session.user.user_metadata?.n1)W.n1=session.user.user_metadata.n1;
-          if(session.user.user_metadata?.n2)W.n2=session.user.user_metadata.n2;
-          closeAuth();
-          // Load plan FIRST then launch — prevents blank screen flash
-          loadUserPlan().then(saved=>{
-            launchApp(saved);
-          }).catch(e=>{
-            console.log('Plan load error:',e);
-            launchApp(false);
-          });
-        }
-      });
+      const authListener=sb.auth.onAuthStateChange(async(event,session)=>{
+  if(window._resetting)return;
+  if((event==='INITIAL_SESSION'||event==='SIGNED_IN')&&session){
+    if(window._launchedUserId===session.user.id)return;
+    window._launchedUserId=session.user.id;
+    window._appLaunched=true;
+    authListener.data.subscription.unsubscribe();
+    currentUser=session.user;
+    if(session.user.user_metadata?.n1)W.n1=session.user.user_metadata.n1;
+    if(session.user.user_metadata?.n2)W.n2=session.user.user_metadata.n2;
+    closeAuth();
+    
+    const saved = await loadUserPlan();
+    await launchApp(saved);
+    
+    setTimeout(() => {
+      if(chatHist && chatHist.length > 0){
+        console.log('Restoring chat history, messages:', chatHist.length);
+        renderChatHistory(true);
+      }
+    }, 500);
+  }
+});
 
     }catch(e){console.log('Supabase init error:',e);}
   };
@@ -1808,23 +1812,35 @@ async function loadUserPlan(){
     if(data.palette)plan.palette=data.palette;
     if(data.budget_breakdown?.length)plan.budgetBreakdown=data.budget_breakdown;
     if(data.guest_list?.length)guests=data.guest_list;
-    if(data.chat_history?.length){
-        chatHist=normalizeChatHistory(data.chat_history);
-        // Rebuild sidebar session from loaded chat history
-        if(chatHist.length>0){
-          const firstMsg=chatHist.find(m=>m.role==='user');
-          if(firstMsg){
-            const title=firstMsg.content.slice(0,45)+(firstMsg.content.length>45?'…':'');
-            const sid='supabase_session_'+currentUser.id;
-            activeChatId=sid;
-            const existing=chatSessions.findIndex(s=>s.id===sid);
-            const sess={id:sid,title,date:data.updated_at||new Date().toISOString(),messages:normalizeChatHistory(chatHist),W:data.wedding_details||{}};
-            if(existing>=0)chatSessions[existing]=sess;
-            else chatSessions.unshift(sess);
-            try{localStorage.setItem('aisle_chats_'+currentUser.id,JSON.stringify(chatSessions));}catch(e){}
-          }
-        }
-      }
+    if(data.chat_history && data.chat_history.length > 0){
+  chatHist = normalizeChatHistory(data.chat_history);
+  console.log('Loaded chat history:', chatHist.length, 'messages');
+  
+  if(chatHist.length > 0){
+    const firstUserMsg = chatHist.find(m => m.role === 'user');
+    if(firstUserMsg){
+      const title = firstUserMsg.content.slice(0,45) + (firstUserMsg.content.length>45?'…':'');
+      const sid = 'supabase_session_' + currentUser.id;
+      activeChatId = sid;
+      
+      const sess = {
+        id: sid,
+        title: title,
+        date: data.updated_at || new Date().toISOString(),
+        messages: normalizeChatHistory(chatHist),
+        W: data.wedding_details || {}
+      };
+      
+      const existing = chatSessions.findIndex(s => s.id === sid);
+      if(existing >= 0) chatSessions[existing] = sess;
+      else chatSessions.unshift(sess);
+      
+      try{
+        localStorage.setItem('aisle_chats_' + currentUser.id, JSON.stringify(chatSessions));
+      } catch(e) {}
+    }
+  }
+}
     if(data.is_pro)isPro=data.is_pro;
     if(data.shortlist?.length)shortlist=data.shortlist;
     if(data.free_used)freeUsed=data.free_used;
@@ -2206,14 +2222,38 @@ function launchApp(hasExisting){
   if(app){app.style.display='flex';app.classList.add('show');}
   try{initApp();}catch(e){}
   if(hasExisting&&chatHist.length>0){
-    renderChatHistory(true);
+  function renderChatHistory(showRestoreToast=false){
+  chatHist = normalizeChatHistory(chatHist);
+  console.log('renderChatHistory called, messages:', chatHist.length);
+  
+  const feed = document.getElementById('agent-feed');
+  if(!feed) return;
+  
+  if(!chatHist.length){
+    if(!document.getElementById('welcome')) appendWelcome();
+    const hr = document.getElementById('hints-row');
+    if(hr) hr.style.display = 'flex';
+    hintsOff = false;
+    return;
   }
-}
-
-
-function restorePlan(){
-  try{initApp();}catch(e){}
-  renderChatHistory(true);
+  
+  feed.innerHTML = '';
+  const w = document.getElementById('welcome');
+  if(w) w.remove();
+  
+  const hr = document.getElementById('hints-row');
+  if(hr) hr.style.display = 'none';
+  hintsOff = true;
+  
+  chatHist.forEach((msg) => renderChatMessage(msg));
+  scrollFeed();
+  
+  try{
+    loadChatSessions();
+    renderChatSidebar();
+  } catch(e){}
+  
+  if(showRestoreToast) showToast('✦ Your conversation has been restored!');
 }
 
 
