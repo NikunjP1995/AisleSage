@@ -1713,22 +1713,33 @@ let sb=null;
       }
 
       // NORMAL FLOW — unsubscribe after first use to prevent repeated SIGNED_IN
-      const authListener=sb.auth.onAuthStateChange(async(event,session)=>{
-        if(window._resetting)return;
-        if((event==='INITIAL_SESSION'||event==='SIGNED_IN')&&session){
-          if(window._launchedUserId===session.user.id)return;
-          window._launchedUserId=session.user.id;
-          window._appLaunched=true;
-          authListener.data.subscription.unsubscribe();
-          currentUser=session.user;
-          if(session.user.user_metadata?.n1)W.n1=session.user.user_metadata.n1;
-          if(session.user.user_metadata?.n2)W.n2=session.user.user_metadata.n2;
-          // Clear any stale in-memory state before loading fresh data
-          chatHist=[];chatSessions=[];activeChatId=null;
-          closeAuth();
-          // Load plan FIRST then launch — prevents blank screen flash
-          loadUserPlan().then(saved=>{
-            launchApp(saved);
+      const authListener=sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN') {
+    currentUser = session.user;
+    
+    // 1. Fetch history from Supabase
+    const { data, error } = await sb
+      .from('chat_history')
+      .select('*')
+      .order('updated_at', { ascending: false });
+
+    if (data) {
+      // 2. Populate your local array with database records
+      chatSessions = data.map(row => ({
+        id: row.id,
+        title: row.title,
+        date: row.created_at,
+        msgs: row.msgs
+      }));
+      
+      // 3. Refresh the UI
+      renderChatSidebar(); 
+    }
+  } else if (event === 'SIGNED_OUT') {
+    chatSessions = []; // Clear local state on logout
+    renderChatSidebar();
+  }
+});
           }).catch(e=>{
             console.log('Plan load error:',e);
             launchApp(false);
@@ -2627,16 +2638,21 @@ function buildSYS(){
 }
 
 
-async function send(){
-  const inp=document.getElementById('inp');
-  const txt=inp.value.trim();
-  if(!txt||busy)return;
+async function saveChatToSupabase(sessionObj) {
+  if (!sb || !currentUser) return;
 
-  // Founder bypass
-  if(txt.toUpperCase()==='SAGE2025'){
-    inp.value='';ar(inp);
-    localStorage.setItem('aisle_founder','SAGE2025');
-    activateFounder();return;
+  const { error } = await sb
+    .from('chat_history')
+    .upsert({
+      id: sessionObj.id, // Ensure your local ID is a UUID or compatible format
+      user_id: currentUser.id,
+      title: sessionObj.title,
+      msgs: sessionObj.msgs,
+      updated_at: new Date()
+    });
+
+  if (error) console.error('Error saving chat:', error);
+}
   }
 
   const w=document.getElementById('welcome');if(w)w.remove();
