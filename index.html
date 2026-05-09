@@ -1723,6 +1723,8 @@ let sb=null;
           currentUser=session.user;
           if(session.user.user_metadata?.n1)W.n1=session.user.user_metadata.n1;
           if(session.user.user_metadata?.n2)W.n2=session.user.user_metadata.n2;
+          // Clear any stale in-memory state before loading fresh data
+          chatHist=[];chatSessions=[];activeChatId=null;
           closeAuth();
           // Load plan FIRST then launch — prevents blank screen flash
           loadUserPlan().then(saved=>{
@@ -1824,6 +1826,19 @@ async function loadUserPlan(){
             try{localStorage.setItem('aisle_chats_'+currentUser.id,JSON.stringify(chatSessions));}catch(e){}
           }
         }
+      } else {
+        // Supabase has no chat history — try localStorage cache as fallback
+        try{
+          const lsKey=STORE_KEY_BASE+'_'+currentUser.id;
+          const cached=localStorage.getItem(lsKey);
+          if(cached){
+            const parsed=JSON.parse(cached);
+            if(parsed.chatHist?.length&&parsed.userId===currentUser.id){
+              chatHist=normalizeChatHistory(parsed.chatHist);
+              console.log('Chat history restored from localStorage cache:',chatHist.length,'messages');
+            }
+          }
+        }catch(e){}
       }
     if(data.is_pro)isPro=data.is_pro;
     if(data.shortlist?.length)shortlist=data.shortlist;
@@ -1852,6 +1867,8 @@ async function checkExistingSession(){
       currentUser=session.user;
       if(session.user.user_metadata?.n1)W.n1=session.user.user_metadata.n1;
       if(session.user.user_metadata?.n2)W.n2=session.user.user_metadata.n2;
+      // Clear stale in-memory state before loading fresh plan
+      chatHist=[];chatSessions=[];activeChatId=null;
       const saved=await loadUserPlan();
       closeAuth();
       launchApp(saved);
@@ -2072,6 +2089,8 @@ document.addEventListener('click',function(e){
 async function signOut(){
   if(!confirm('Sign out of Aisle Sage?'))return;
   document.getElementById('account-menu').style.display='none';
+  // Capture user id BEFORE clearing state (currentUser will be nulled shortly)
+  const _uid=currentUser?.id||'guest';
   if(sb){
     try{
       await savePlan();
@@ -2079,10 +2098,7 @@ async function signOut(){
       await sb.auth.signOut();
     }catch(e){console.log('Signout error:',e);}
   }
-  // Clear local state
-  // Save to Supabase before logout
-  try{await savePlan();saveChatSession();}catch(e){}
-  const _uid=currentUser?.id||'guest';
+  // Clear all in-memory state
   currentUser=null;
   isPro=false;
   shortlist=[];
@@ -2092,23 +2108,9 @@ async function signOut(){
   activeChatId=null;
   W={n1:'',n2:'',date:'',loc:'',budget:0,style:'',guests:0};
   plan={venues:[],photographers:[],emails:[],palette:null,budgetBreakdown:[],guestList:[],attire:null,timeline:false};
-  // Clear ALL user data from localStorage on logout — privacy critical
+  // Clear ALL user data from localStorage — use _uid captured before null
   try{localStorage.removeItem(STORE_KEY_BASE+'_'+_uid);}catch(e){}
   try{localStorage.removeItem('aisle_chats_'+_uid);}catch(e){}
-  window._appLaunched=false;
-  window._launchedUserId=null;
-  currentUser=null;
-  isPro=false;
-  shortlist=[];
-  guests=[];
-  chatHist=[];
-  chatSessions=[];
-  activeChatId=null;
-  W={n1:'',n2:'',date:'',loc:'',budget:0,style:'',guests:0};
-  plan={venues:[],photographers:[],emails:[],palette:null,budgetBreakdown:[],guestList:[],attire:null,timeline:false};
-  // Clear ALL user data from localStorage on logout — privacy critical
-  try{localStorage.removeItem(STORE_KEY_BASE+'_'+_uid);}catch(e){}
-  try{localStorage.removeItem('aisle_chats_'+(currentUser?.id||'guest'));}catch(e){}
   window._appLaunched=false;
   window._launchedUserId=null;
   showLanding();
@@ -2132,6 +2134,8 @@ async function signIn(){
     currentUser=data.user;
     window._appLaunched=true;
     window._launchedUserId=data.user.id;
+    // Clear any stale in-memory state from a previous session before loading fresh data
+    chatHist=[];chatSessions=[];activeChatId=null;
     closeAuth();
     // Load plan first then launch with data
     loadUserPlan().then(saved=>{
@@ -2205,8 +2209,13 @@ function launchApp(hasExisting){
   const app=document.getElementById('app');
   if(app){app.style.display='flex';app.classList.add('show');}
   try{initApp();}catch(e){}
+  // Double rAF ensures DOM paint is complete before restoring chat history
   if(hasExisting&&chatHist.length>0){
-    renderChatHistory(true);
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        renderChatHistory(true);
+      });
+    });
   }
 }
 
@@ -2397,24 +2406,33 @@ function renderChatMessage(msg){
 
 function renderChatHistory(showRestoreToast=false){
   chatHist=normalizeChatHistory(chatHist);
-  console.log('renderChatHistory called, messages:',chatHist.length);
-  if(!chatHist.length){console.log('No messages to render');return;}
+  if(!chatHist.length)return;
+  // Ensure the planner page is active so agent-feed is visible
+  const plannerPage=document.getElementById('page-planner');
+  if(plannerPage&&!plannerPage.classList.contains('active')){
+    // Activate planner tab without triggering full page switch side-effects
+    document.querySelectorAll('.apg').forEach(p=>p.classList.remove('active'));
+    plannerPage.classList.add('active');
+    // Also mark the planner nav tab as active
+    const plannerTab=document.querySelector('.an-tab[onclick*="planner"]');
+    if(plannerTab){
+      document.querySelectorAll('.an-tab').forEach(t=>t.classList.remove('active'));
+      plannerTab.classList.add('active');
+    }
+    const plannerBn=document.querySelector('.bn-item[onclick*="planner"]');
+    if(plannerBn){
+      document.querySelectorAll('.bn-item').forEach(t=>t.classList.remove('active'));
+      plannerBn.classList.add('active');
+    }
+  }
   const feed=document.getElementById('agent-feed');
-  console.log('Feed element:', feed?'found':'NOT FOUND');
   if(!feed)return;
   feed.innerHTML='';
   const w=document.getElementById('welcome');if(w)w.remove();
   const hr=document.getElementById('hints-row');if(hr)hr.style.display='none';
   hintsOff=true;
-  chatHist.forEach((msg,i)=>{
-    console.log('Rendering msg',i,msg.role,msg.content?.slice(0,30));
-    renderChatMessage(msg);
-  });
+  chatHist.forEach(msg=>renderChatMessage(msg));
   scrollFeed();
-  console.log('Feed after render, children:',feed.children.length);
-  // Check if app is visible
-  const app=document.getElementById('app');
-  console.log('App visible:',app?.style.display,app?.classList.contains('show'));
   try{loadChatSessions();}catch(e){}
   try{renderChatSidebar();}catch(e){}
   if(showRestoreToast)showToast('✦ Your conversation has been restored!');
